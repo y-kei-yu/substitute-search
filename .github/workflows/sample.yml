@@ -7,9 +7,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name:checkout code
+      - name: Checkout code
       - uses: actions/checkout@v5
-      - name: setup node.jobs
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "20"
