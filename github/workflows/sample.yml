@@ -1,0 +1,32 @@
+name: sample
+on: [push, workflow_dispatch]:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name:checkout code
+      - uses: actions/checkout@v5
+      - name: setup node.jobs
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm run test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      - name: Run build
+        run: npm run build
