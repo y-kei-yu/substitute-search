@@ -1,7 +1,17 @@
+import { useEffect } from 'react';
 import './App.css'
+import { fetchUser } from './service/fetchUser'
 
 
 function App() {
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = await fetchUser();
+      console.log("user data from App:", user);
+    };
+    fetchUserData();
+  }, []);
   return (
     <>
       <h1 data-testid="testTitle">Vite + React test 自動デプロイ確認</h1>
