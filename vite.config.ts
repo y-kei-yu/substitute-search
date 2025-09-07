@@ -2,10 +2,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import env from "vite-plugin-env-compatible";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    env({ prefix: "VITE", mountedPath: "process.env" }),
+  ],
   test: {
     environment: "jsdom",
     globals: true,
