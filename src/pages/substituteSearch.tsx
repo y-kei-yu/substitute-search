@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getAllIngredients } from "../service/getAllIngredients";
 import { Ingredient } from "../domain/ingredients";
+import { SearchHistory } from "../domain/SearchHistory";
+import { fetchUserSearchHistory } from "../service/fetchUserSearchHistory";
 //import { GoogleGenAI } from "@google/genai";
 
 export const SubstituteSearch = () => {
@@ -8,7 +10,7 @@ export const SubstituteSearch = () => {
     const [ingredientData, setIngredientData] = useState<Ingredient[]>([]);
     const [targetSubstitute, setTargetSubstitute] = useState("");
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
-
+    const [searchResults, setSearchResults] = useState<SearchHistory[]>([]);
 
     //代替したいもの欄の値変更時
     const changeTargetSubstitute = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,8 +38,15 @@ export const SubstituteSearch = () => {
     //検索
     useEffect(() => {
         allIngredients();
+        userSearchHistory();
     }, []);
 
+    //ユーザーごとの検索履歴を表示する
+    const userSearchHistory = async () => {
+        // ユーザーの検索履歴を取得して表示する処理
+        const userSearchHistory = await fetchUserSearchHistory();
+        setSearchResults(userSearchHistory);
+    };
     //ボタン押下時の処理
     const handleSearch = () => {
         console.log(selectedIngredients);
@@ -56,6 +65,7 @@ export const SubstituteSearch = () => {
         //     });
         //     console.log(response.text);
         // }
+
 
         // main();
     };
@@ -84,12 +94,14 @@ export const SubstituteSearch = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td></td>
-                        <td>米粉、片栗粉、アーモンドプードル</td>
-                        <td>2024-06-20</td>
-                    </tr>
+                    {searchResults.map((result, index) => (
+                        <tr key={result.id}>
+                            <td>{index + 1}</td>
+                            <td>{result.query}</td>
+                            <td>{result.ai_response}</td>
+                            <td>{result.getFormattedDate()}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
 
