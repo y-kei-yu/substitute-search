@@ -1,3 +1,4 @@
+//DB保存用
 export interface User {
   id: string;
   email: string;

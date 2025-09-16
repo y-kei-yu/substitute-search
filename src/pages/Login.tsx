@@ -20,7 +20,7 @@ export const Login = () => {
 
         const init = async () => {
             // ✅ 開発時は毎回ログアウトから開始（ただしブラウザセッションごとに一度だけ）
-            if (process.env.NODE_ENV === "development") {
+            if (import.meta.env.DEV) {
                 if (!sessionStorage.getItem("alreadySignedOut")) {
                     await supabase.auth.signOut();
                     sessionStorage.setItem("alreadySignedOut", "true");
@@ -31,6 +31,7 @@ export const Login = () => {
             const { data } = await supabase.auth.getSession();
             console.log("✅ getSession result:", data);
             const currentUser = data.session?.user ?? null;
+            console.log("currentUser", currentUser);
             if (currentUser) {
                 setAuthUser(currentUser);
                 const appUser = await fetchUser(currentUser.id);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllIngredients } from "../service/getAllIngredients";
-import { Ingredient } from "../domain/ingredients";
+import { Ingredient } from "../domain/Ingredients";
 import { SearchHistory } from "../domain/SearchHistory";
 import { fetchUserSearchHistory } from "../service/fetchUserSearchHistory";
 //import { GoogleGenAI } from "@google/genai";
