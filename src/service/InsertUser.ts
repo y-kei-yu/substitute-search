@@ -1,5 +1,5 @@
 import { supabase } from "../utils/supabase";
-import { User } from "./User";
+import { User } from "../domain/User";
 
 export const InsertUserData = async (data: User) => {
   const { error: userError } = await supabase.from("users").insert({

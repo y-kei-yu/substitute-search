@@ -5,10 +5,11 @@ import { Ingredient } from "../domain/Ingredients";
 import { getAllIngredients } from "../service/getAllIngredients";
 import { useNavigate } from "react-router";
 import { supabase } from "../utils/supabase";
-import { InsertUserData } from "../domain/InsertUser";
+import { InsertUserData } from "../service/InsertUser";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toUser } from "../domain/UserMapper";
 import { UserForm } from "../domain/UserForm";
+import { InsertUserIngredients } from "../service/InsertUserIngredients";
 
 
 export const Register = () => {
@@ -44,6 +45,8 @@ export const Register = () => {
         // UserForm → User へ変換
         const user = toUser(data, authUser.id, authUser.email ?? "");
         await InsertUserData(user);
+        // 選択した食材を登録
+        await InsertUserIngredients(authUser.id, selectedIngredients);
 
         console.log(user);
 

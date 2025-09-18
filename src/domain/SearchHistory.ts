@@ -1,7 +1,8 @@
+// DBから取得したレコードをクラス化して日付フォーマットなどを扱う
 export class SearchHistory {
   constructor(
     public id: number,
-    public user_id: number,
+    public user_id: string,
     public query: string,
     public ai_response: string,
     public created_at: string
