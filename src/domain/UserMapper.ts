@@ -1,19 +1,21 @@
+import { SearchForm } from "./SearchForm";
 import { User } from "./User";
 import { UserForm } from "./UserForm";
 
 //UserForm → User に変換
-export function toUser(userForm: UserForm, id: string, email: string): User {
+export function toUser(
+  form: UserForm | SearchForm,
+  id: string,
+  email: string
+): User {
   return {
     id,
     email,
-    name: userForm.name,
-    is_vegan: userForm.is_vegan === "true",
-    is_gluten_free: userForm.is_gluten_free === "true",
-    allergies: userForm.allergies
-      ? userForm.allergies
-          .split(",")
-          .map((a) => a.trim())
-          .filter((a) => a.length > 0)
+    name: "name" in form ? form.name : "", // SearchForm の場合は空文字
+    is_vegan: form.is_vegan === "true",
+    is_gluten_free: form.is_gluten_free === "true",
+    allergies: form.allergies
+      ? form.allergies.split(",").map((allergy) => allergy.trim())
       : [],
     created_at: new Date().toISOString(),
   };

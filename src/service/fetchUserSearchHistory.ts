@@ -8,7 +8,9 @@ export const fetchUserSearchHistory = async (userId: string) => {
     .from("search_history")
     .select("*")
     .eq("user_id", userId) // 例としてuser_idが1のユーザーの履歴を取得
+    .order("created_at", { ascending: false })
     .limit(5);
+
   if (response.error) {
     console.error("Error fetching user search history:", response.error);
     return [];

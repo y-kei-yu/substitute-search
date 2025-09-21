@@ -12,6 +12,10 @@ import { GoogleGenAI } from "@google/genai";
 import { SearchForm } from "../domain/SearchForm";
 import { InsertUserSearchHistory } from "../service/InsertUserSearchHistory";
 import { Header } from "../components/Header";
+import { UpsertUserIngredients } from "../service/UpsertUserIngredients";
+import { toUser } from "../domain/UserMapper";
+import { UpsertUserData } from "../service/UpsertUser";
+
 
 
 
@@ -21,7 +25,7 @@ export const SubstituteSearch = () => {
     const [searchResults, setSearchResults] = useState<SearchHistory[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
     const [latestResult, setLatestResult] = useState<string | null>(null);
-    const { register, handleSubmit, reset } = useForm<SearchForm>();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<SearchForm>();
 
     // 初期ロード時に一度だけ呼ぶ
     useEffect(() => {
@@ -119,12 +123,16 @@ export const SubstituteSearch = () => {
                 console.log(response.text);
                 setLatestResult(response.text ?? null);  // 検索直後に画面へ表示
                 if (authUser) {
+                    // UserForm → User に変換して保存
+                    const user = toUser(data, authUser.id, authUser.email ?? "");
+                    await UpsertUserData(user);
                     await InsertUserSearchHistory({
                         user_id: authUser.id,
                         query: data.targetSubstitute,
                         ai_response: response.text ?? "",
                     });
                     await userSearchHistory();
+                    await UpsertUserIngredients(authUser.id, selectedIngredients);
                 }
             } catch (error: unknown) {
                 if (error instanceof Error) {
@@ -152,10 +160,15 @@ export const SubstituteSearch = () => {
                                 <label htmlFor="targetSubstitute" className="mb-2 block text-sm font-medium text-slate-700">代替したいもの</label>
                                 <input
                                     id="targetSubstitute"
-                                    {...register("targetSubstitute")}
+                                    {...register("targetSubstitute", {
+                                        required: "代替したいものを入力してください。"
+                                    })}
                                     placeholder="代替したいものを入力してください。"
                                     className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
                                 />
+                                {errors.targetSubstitute?.message && (
+                                    <p className="error-message">{errors.targetSubstitute?.message}</p>
+                                )}
                             </div>
                             {/* is_vegan */}
                             <div className="mb-6">

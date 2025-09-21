@@ -19,7 +19,7 @@ export const Header = () => {
                     onClick={handleSignOut}
                     className="ml-auto bg-white text-blue-600 hover:bg-blue-100 rounded px-4 py-2 text-sm font-medium"
                 >
-                    サインアウト
+                    ログアウト
                 </button>
             </div>
         </header>
