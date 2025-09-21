@@ -10,6 +10,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toUser } from "../domain/UserMapper";
 import { UserForm } from "../domain/UserForm";
 import { InsertUserIngredients } from "../service/InsertUserIngredients";
+import { Header } from "../components/Header";
 
 
 export const Register = () => {
@@ -60,7 +61,7 @@ export const Register = () => {
     };
 
 
-    //検索
+    //
     useEffect(() => {
         allIngredients();
         fetchAuthUser();
@@ -70,14 +71,10 @@ export const Register = () => {
     return (
         <div className="min-h-dvh bg-slate-50 py-10">
             <div className="mx-auto max-w-3xl px-4">
-                {/* Page header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">新規登録画面</h1>
-                    <p className="mt-1 text-sm text-slate-600">基本情報と、家にある調味料を選んでください。</p>
-                </div>
-
+                <Header />
                 {/* Form Card */}
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">新規登録画面</h1>
                     <form onSubmit={handleSubmit(onSubmit)} className="p-6">
                         {/* Name Field */}
                         <div className="mb-6">

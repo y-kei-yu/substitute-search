@@ -7,6 +7,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 //import { User as AppUser } from "../domain/User";
 import { fetchUser } from "../service/fetchUser";
 import { useNavigate } from "react-router";
+import { Header } from "../components/Header";
 
 
 export const Login = () => {
@@ -68,6 +69,7 @@ export const Login = () => {
 
     return (
         <div>
+            <Header />
             {/* 未ログイン時は必ずボタン表示（初期処理中は Loading を併記） */}
             {!authUser && (
                 <>

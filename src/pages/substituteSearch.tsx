@@ -11,6 +11,7 @@ import { fetchUserIngredients } from "../service/fetchUserIngredients";
 import { GoogleGenAI } from "@google/genai";
 import { SearchForm } from "../domain/SearchForm";
 import { InsertUserSearchHistory } from "../service/InsertUserSearchHistory";
+import { Header } from "../components/Header";
 
 
 
@@ -142,9 +143,7 @@ export const SubstituteSearch = () => {
         <>
             <div className="min-h-screen bg-slate-50 py-6 sm:py-10">
                 <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">代替検索画面</h1>
-                    </div>
+                    <Header />
                     {/* Form Card */}
                     <div className="rounded-xl border border-slate-200 bg-white shadow-sm w-full">
                         <form onSubmit={handleSubmit(handleSearch)} className="p-6">
