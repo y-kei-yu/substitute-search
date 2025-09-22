@@ -14,7 +14,7 @@ import { UpsertUserIngredients } from "../service/UpsertUserIngredients";
 
 
 export const Register = () => {
-    const { register, handleSubmit } = useForm<UserForm>()
+    const { register, handleSubmit, formState: { errors } } = useForm<UserForm>()
     const [ingredientData, setIngredientData] = useState<Ingredient[]>([]);
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
@@ -81,10 +81,15 @@ export const Register = () => {
                             <label htmlFor="name" className="mb-2 block text-sm font-medium text-slate-700">ニックネーム</label>
                             <input
                                 id="name"
-                                {...register("name")}
+                                {...register("name", {
+                                    required: "名前の入力は必須です"
+                                })}
                                 placeholder="山田 太郎"
                                 className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
                             />
+                            {errors.name && (
+                                <span style={{ color: "red" }} data-testid="nameErrMsg">{errors.name.message}</span>
+                            )}
                         </div>
 
                         {/* is_vegan Field */}

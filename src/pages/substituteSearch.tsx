@@ -167,7 +167,7 @@ export const SubstituteSearch = () => {
                                     className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
                                 />
                                 {errors.targetSubstitute?.message && (
-                                    <p className="error-message">{errors.targetSubstitute?.message}</p>
+                                    <span style={{ color: "red" }} className="error-message">{errors.targetSubstitute?.message}</span>
                                 )}
                             </div>
                             {/* is_vegan */}
