@@ -1,19 +1,21 @@
 import './App.css'
-import { Route, Routes } from 'react-router-dom';
-import { SubstituteSearch } from './pages/substituteSearch';
-import { Login } from './pages/login';
-import { Register } from './pages/register';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { SubstituteSearch } from './pages/SubstituteSearch';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 
 
 
 function App() {
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/substitute-search" element={<SubstituteSearch />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/substitute-search" element={<SubstituteSearch />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </BrowserRouter>
     </>
   )
 }
