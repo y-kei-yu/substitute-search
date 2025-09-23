@@ -10,8 +10,8 @@ export const Header = () => {
     };
 
     return (
-        <header className="bg-blue-500 text-white">
-            <div className="container mx-auto flex justify-between items-center flex-wrap p-5 flex-col md:flex-row">
+        <header className="w-full bg-blue-500 text-white">
+            <div className="flex justify-between items-center p-5 flex-col md:flex-row">
                 <a className="flex title-font font-medium items-center text-white mb-4 md:mb-0">
                     <h1 className="ml-3 text-xl text-white">代替品検索アプリ</h1>
                 </a>

@@ -149,14 +149,13 @@ export const SubstituteSearch = () => {
 
     return (
         <>
-            <div className="min-h-screen bg-slate-50 py-6 sm:py-10">
-                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <Header />
-                    {/* Form Card */}
-                    <div className="rounded-xl border border-slate-200 bg-white shadow-sm w-full">
-                        <form onSubmit={handleSubmit(handleSearch)} className="p-6">
+            <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100 pt-0 pb-8">
+                <Header />
+                <div className="mx-auto w-full max-w-7xl mt-6 sm:mt-10 px-4 sm:px-6 lg:px-8">
+                    <div className="rounded-xl border border-slate-200 bg-white shadow-lg p-8">
+                        <form onSubmit={handleSubmit(handleSearch)} className="space-y-10">
                             {/* 代替したいもの */}
-                            <div className="mb-6">
+                            <section className="space-y-4">
                                 <label htmlFor="targetSubstitute" className="mb-2 block text-sm font-medium text-slate-700">代替したいもの</label>
                                 <input
                                     id="targetSubstitute"
@@ -169,9 +168,9 @@ export const SubstituteSearch = () => {
                                 {errors.targetSubstitute?.message && (
                                     <span style={{ color: "red" }} className="error-message">{errors.targetSubstitute?.message}</span>
                                 )}
-                            </div>
+                            </section>
                             {/* is_vegan */}
-                            <div className="mb-6">
+                            <section className="space-y-4">
                                 <label className="mb-2 block text-sm font-medium text-slate-700">ベジタリアン</label>
                                 <div className="flex items-center mb-4">
                                     <input
@@ -193,9 +192,9 @@ export const SubstituteSearch = () => {
                                     />
                                     <label htmlFor="is_vegan_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
                                 </div>
-                            </div>
+                            </section>
                             {/* is_gluten_free */}
-                            <div className="mb-6">
+                            <section className="space-y-4">
                                 <label className="mb-2 block text-sm font-medium text-slate-700">グルテンフリー</label>
                                 <div className="flex items-center mb-4">
                                     <input
@@ -217,9 +216,9 @@ export const SubstituteSearch = () => {
                                     />
                                     <label htmlFor="is_gluten_free_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
                                 </div>
-                            </div>
+                            </section>
                             {/* allergies */}
-                            <div className="mb-6">
+                            <section className="space-y-4">
                                 <label htmlFor="allergies" className="mb-2 block text-sm font-medium text-slate-700">アレルギー（カンマ区切りで入力）</label>
                                 <input
                                     id="allergies"
@@ -227,86 +226,91 @@ export const SubstituteSearch = () => {
                                     placeholder="例: 卵, 乳, 小麦"
                                     className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
                                 />
-                            </div>
-                            {/* ここまでフォーム項目 */}
+                            </section>
                             {/* チェックボックス（家にある調味料） */}
-                            <div className="mb-3 flex items-baseline justify-between">
-                                <label className="text-sm font-medium text-slate-700">家にある調味料</label>
-                                <span className="text-xs text-slate-500">選択中: {selectedIngredients.length} 件</span>
-                            </div>
-                            <div className="max-h-64 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                                    {ingredientData.map((ingredient) => (
-                                        <div key={ingredient.id}>
-                                            <label
-                                                htmlFor={`ingredient-${ingredient.id}`}
-                                                className="group relative block cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 transition has-[:checked]:border-blue-500 has-[:checked]:ring-2 has-[:checked]:ring-blue-100"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    id={`ingredient-${ingredient.id}`}
-                                                    className="peer sr-only"
-                                                    checked={selectedIngredients.includes(ingredient.id)}
-                                                    onChange={(e) => handleCheckboxChange(ingredient.id, e.target.checked)}
-                                                />
-                                                <div className="flex items-start gap-3">
-                                                    <div className="mt-0.5 h-5 w-5 shrink-0 rounded border border-slate-300 transition peer-checked:border-blue-600 peer-checked:bg-blue-600" />
-                                                    <div>
-                                                        <p className="font-medium text-slate-900 text-sm">{ingredient.name}</p>
-                                                    </div>
-                                                </div>
-                                                <svg
-                                                    aria-hidden
-                                                    viewBox="0 0 24 24"
-                                                    className="pointer-events-none absolute right-3 top-3 h-5 w-5 opacity-0 transition-opacity peer-checked:opacity-100"
-                                                >
-                                                    <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600" />
-                                                </svg>
-                                            </label>
-                                        </div>
-                                    ))}
+                            <section className="space-y-4">
+                                <div className="flex items-baseline justify-between">
+                                    <label className="text-sm font-medium text-slate-700">家にある調味料</label>
+                                    <span className="text-xs text-slate-500">選択中: {selectedIngredients.length} 件</span>
                                 </div>
-                            </div>
-                            {/* 検索ボタン */}
-                            <div className="mt-8 flex items-center justify-end gap-3">
-                                <button
-                                    type="submit"
-                                    className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
-                                >
-                                    検索
-                                </button>
-                            </div>
-                            {/* 検索履歴テーブル */}
-                            <div className="mt-8">
-                                <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm mt-6 text-sm">
-                                    <thead>
-                                        <tr className="bg-slate-100">
-                                            <th className="px-4 py-2 font-bold text-slate-700">No</th>
-                                            <th className="px-4 py-2 font-bold text-slate-700">代替したいもの</th>
-                                            <th className="px-4 py-2 font-bold text-slate-700">出力結果</th>
-                                            <th className="px-4 py-2 font-bold text-slate-700">出力した日付</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {searchResults.map((result, index) => (
-                                            <tr
-                                                key={result.id}
-                                                className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                                            >
-                                                <td className="px-4 py-2">{index + 1}</td>
-                                                <td className="px-4 py-2">{result.query}</td>
-                                                <td className="px-4 py-2">{result.ai_response}</td>
-                                                <td className="px-4 py-2">{result.getFormattedDate()}</td>
-                                            </tr>
+                                <div className="max-h-80 overflow-y-auto rounded-lg border border-slate-200 bg-white p-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                                        {ingredientData.map((ingredient) => (
+                                            <div key={ingredient.id}>
+                                                <label
+                                                    htmlFor={`ingredient-${ingredient.id}`}
+                                                    className="group relative block cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 transition has-[:checked]:border-blue-500 has-[:checked]:ring-2 has-[:checked]:ring-blue-100"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        id={`ingredient-${ingredient.id}`}
+                                                        className="peer sr-only"
+                                                        checked={selectedIngredients.includes(ingredient.id)}
+                                                        onChange={(e) => handleCheckboxChange(ingredient.id, e.target.checked)}
+                                                    />
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="mt-0.5 h-5 w-5 shrink-0 rounded border border-slate-300 transition peer-checked:border-blue-600 peer-checked:bg-blue-600" />
+                                                        <div>
+                                                            <p className="font-medium text-slate-900 text-sm">{ingredient.name}</p>
+                                                        </div>
+                                                    </div>
+                                                    <svg
+                                                        aria-hidden
+                                                        viewBox="0 0 24 24"
+                                                        className="pointer-events-none absolute right-3 top-3 h-5 w-5 opacity-0 transition-opacity peer-checked:opacity-100"
+                                                    >
+                                                        <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600" />
+                                                    </svg>
+                                                </label>
+                                            </div>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </div>
+                                </div>
+                            </section>
+                            {/* 検索ボタン */}
+                            <section className="space-y-4">
+                                <div className="flex items-center justify-end gap-3">
+                                    <button
+                                        type="submit"
+                                        className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                    >
+                                        検索
+                                    </button>
+                                </div>
+                            </section>
+                            {/* 検索履歴テーブル */}
+                            <section className="space-y-4">
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full border-collapse text-sm rounded-lg shadow">
+                                        <thead>
+                                            <tr className="bg-slate-100">
+                                                <th className="px-4 py-2 font-bold text-slate-700">No</th>
+                                                <th className="px-4 py-2 font-bold text-slate-700">代替したいもの</th>
+                                                <th className="px-4 py-2 font-bold text-slate-700">出力結果</th>
+                                                <th className="px-4 py-2 font-bold text-slate-700">出力した日付</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {searchResults.map((result, index) => (
+                                                <tr
+                                                    key={result.id}
+                                                    className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                                                >
+                                                    <td className="px-4 py-2">{index + 1}</td>
+                                                    <td className="px-4 py-2">{result.query}</td>
+                                                    <td className="px-4 py-2">{result.ai_response}</td>
+                                                    <td className="px-4 py-2">{result.getFormattedDate()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
                         </form>
                     </div>
                     {latestResult && (
-                        <div className="mt-6 p-4 rounded-lg border border-blue-300 bg-blue-50 shadow">
-                            <h2 className="text-lg font-bold text-blue-700 mb-2">検索結果</h2>
+                        <div className="mt-10 p-6 rounded-lg bg-blue-50 border border-blue-200 shadow-sm">
+                            <h2 className="text-xl font-bold text-blue-700 mb-2">検索結果</h2>
                             <p className="whitespace-pre-line text-slate-800">{latestResult}</p>
                         </div>
                     )}
