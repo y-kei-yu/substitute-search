@@ -6,7 +6,7 @@ import { supabase } from "../utils/supabase";
  * @param userId
  * @param ingredientIds
  */
-export const UpsertUserIngredients = async (
+export const upsertUserIngredients = async (
   userId: string,
   ingredientIds: number[]
 ) => {

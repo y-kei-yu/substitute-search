@@ -1,21 +1,22 @@
 import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { Ingredient } from "../domain/Ingredients";
+import { Ingredients } from "../domain/Ingredients";
 import { getAllIngredients } from "../service/getAllIngredients";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
-import { UpsertUserData } from "../service/UpsertUser";
+
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toUser } from "../domain/UserMapper";
 import { UserForm } from "../domain/UserForm";
 import { Header } from "../components/Header";
-import { UpsertUserIngredients } from "../service/UpsertUserIngredients";
+import { upsertUserData } from "../service/upsertUserData";
+import { upsertUserIngredients } from "../service/upsertUserIngredients";
 
 
 export const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<UserForm>()
-    const [ingredientData, setIngredientData] = useState<Ingredient[]>([]);
+    const [ingredientData, setIngredientData] = useState<Ingredients[]>([]);
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
     const navigate = useNavigate();
@@ -45,9 +46,9 @@ export const Register = () => {
         console.log("authUser.email", authUser.email)
         // UserForm → User へ変換
         const user = toUser(data, authUser.id, authUser.email ?? "");
-        await UpsertUserData(user);
+        await upsertUserData(user);
         // 選択した食材を登録
-        await UpsertUserIngredients(authUser.id, selectedIngredients);
+        await upsertUserIngredients(authUser.id, selectedIngredients);
 
         console.log(user);
 
@@ -74,7 +75,7 @@ export const Register = () => {
                 <Header />
                 {/* Form Card */}
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">新規登録画面</h1>
+                    <h1 data-testid="testRegisterTitle" className=" text-2xl font-bold tracking-tight text-slate-900">新規登録画面</h1>
                     <form onSubmit={handleSubmit(onSubmit)} className="p-6">
                         {/* Name Field */}
                         <div className="mb-6">
@@ -82,7 +83,7 @@ export const Register = () => {
                             <input
                                 id="name"
                                 {...register("name", {
-                                    required: "名前の入力は必須です"
+                                    required: "ニックネームの入力は必須です"
                                 })}
                                 placeholder="山田 太郎"
                                 className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
@@ -101,6 +102,7 @@ export const Register = () => {
                                     type="radio"
                                     value="true"
                                     {...register("is_vegan")}
+                                    data-testid="testVeganYes"
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                                 />
                                 <label htmlFor="is_vegan_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
@@ -111,6 +113,7 @@ export const Register = () => {
                                     type="radio"
                                     value="false"
                                     {...register("is_vegan")}
+                                    data-testid="testVeganNo"
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                                     defaultChecked
                                 />
@@ -127,6 +130,7 @@ export const Register = () => {
                                     type="radio"
                                     value="true"
                                     {...register("is_gluten_free")}
+                                    data-testid="testGlutenYes"
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                                 />
                                 <label htmlFor="is_gluten_free_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
@@ -137,6 +141,7 @@ export const Register = () => {
                                     type="radio"
                                     value="false"
                                     {...register("is_gluten_free")}
+                                    data-testid="testGlutenNo"
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                                     defaultChecked
                                 />
@@ -172,6 +177,7 @@ export const Register = () => {
                                         <input
                                             type="checkbox"
                                             id={`ingredient-${ingredient.id}`}
+                                            aria-label={ingredient.name}
                                             className="peer sr-only"
                                             checked={selectedIngredients.includes(ingredient.id)}
                                             onChange={(e) => handleCheckboxChange(ingredient.id, e.target.checked)}
@@ -202,12 +208,12 @@ export const Register = () => {
                                 type="submit"
                                 className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
                             >
-                                登録する
+                                登録
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

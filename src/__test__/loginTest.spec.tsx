@@ -4,7 +4,7 @@ import { Login } from "../pages/Login";
 import userEvent from "@testing-library/user-event";
 
 
-//useNavigateのモック化(一部モック化)
+// useNavigateのモック化(一部モック化)
 const mockedNavigator = vi.fn();
 vi.mock("react-router-dom", async () => {
     const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");

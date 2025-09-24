@@ -1,7 +1,7 @@
 import { supabase } from "../utils/supabase";
 import { SearchHistoryInput } from "../domain/SearchHistoryInput";
 
-export const InsertUserSearchHistory = async (data: SearchHistoryInput) => {
+export const insertUserSearchHistory = async (data: SearchHistoryInput) => {
   const { error } = await supabase.from("search_history").insert({
     user_id: data.user_id,
     query: data.query,

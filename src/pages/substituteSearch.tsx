@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { getAllIngredients } from "../service/getAllIngredients";
-import { Ingredient } from "../domain/Ingredients";
+import { Ingredients } from "../domain/Ingredients";
 import { SearchHistory } from "../domain/SearchHistory";
 import { fetchUserSearchHistory } from "../service/fetchUserSearchHistory";
 import { supabase } from "../utils/supabase";
@@ -10,17 +10,16 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { fetchUserIngredients } from "../service/fetchUserIngredients";
 import { GoogleGenAI } from "@google/genai";
 import { SearchForm } from "../domain/SearchForm";
-import { InsertUserSearchHistory } from "../service/InsertUserSearchHistory";
 import { Header } from "../components/Header";
-import { UpsertUserIngredients } from "../service/UpsertUserIngredients";
 import { toUser } from "../domain/UserMapper";
-import { UpsertUserData } from "../service/UpsertUser";
-
+import { upsertUserData } from "../service/upsertUserData";
+import { insertUserSearchHistory } from "../service/insertUserSearchHistory";
+import { upsertUserIngredients } from "../service/upsertUserIngredients";
 
 
 
 export const SubstituteSearch = () => {
-    const [ingredientData, setIngredientData] = useState<Ingredient[]>([]);
+    const [ingredientData, setIngredientData] = useState<Ingredients[]>([]);
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
     const [searchResults, setSearchResults] = useState<SearchHistory[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
@@ -125,14 +124,14 @@ export const SubstituteSearch = () => {
                 if (authUser) {
                     // UserForm → User に変換して保存
                     const user = toUser(data, authUser.id, authUser.email ?? "");
-                    await UpsertUserData(user);
-                    await InsertUserSearchHistory({
+                    await upsertUserData(user);
+                    await insertUserSearchHistory({
                         user_id: authUser.id,
                         query: data.targetSubstitute,
                         ai_response: response.text ?? "",
                     });
                     await userSearchHistory();
-                    await UpsertUserIngredients(authUser.id, selectedIngredients);
+                    await upsertUserIngredients(authUser.id, selectedIngredients);
                 }
             } catch (error: unknown) {
                 if (error instanceof Error) {
