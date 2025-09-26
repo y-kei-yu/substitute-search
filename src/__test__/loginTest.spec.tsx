@@ -58,7 +58,7 @@ describe("ログイン画面", () => {
         );
         await waitFor(() => {
             const title = screen.getByTestId("testLoginTitle");
-            expect(title).toHaveTextContent("ログイン画面");
+            expect(title).toHaveTextContent("代替品検索アプリ");
         });
     });
 

@@ -1,5 +1,12 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { getAllIngredients } from "../service/getAllIngredients";
 import { Ingredients } from "../domain/Ingredients";
 import { SearchHistory } from "../domain/SearchHistory";
@@ -15,6 +22,7 @@ import { toUser } from "../domain/UserMapper";
 import { upsertUserData } from "../service/upsertUserData";
 import { insertUserSearchHistory } from "../service/insertUserSearchHistory";
 import { upsertUserIngredients } from "../service/upsertUserIngredients";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 
 
@@ -24,7 +32,8 @@ export const SubstituteSearch = () => {
     const [searchResults, setSearchResults] = useState<SearchHistory[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
     const [latestResult, setLatestResult] = useState<string | null>(null);
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<SearchForm>();
+    const { register, handleSubmit, reset, formState: { errors }, control } = useForm<SearchForm>();
+    const [isLoading, setIsLoading] = useState(false)
 
     // 初期ロード時に一度だけ呼ぶ
     useEffect(() => {
@@ -90,6 +99,7 @@ export const SubstituteSearch = () => {
 
     // 検索ボタンクリック時の処理
     const handleSearch: SubmitHandler<SearchForm> = (data) => {
+        setIsLoading(true);
         // data: targetSubstitute, is_vegan, is_gluten_free, allergies
         console.log("検索フォーム:", data);
         console.log("選択中の食材:", selectedIngredients);
@@ -140,6 +150,8 @@ export const SubstituteSearch = () => {
                     console.error("Gemini API unknown error:", error);
                 }
                 setLatestResult("⚠️ サーバーが混雑しています。しばらくしてからもう一度お試しください。");
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -148,169 +160,189 @@ export const SubstituteSearch = () => {
 
     return (
         <>
-            <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100 pt-0 pb-8">
-                <Header />
+            <Header />
+            <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-green-50 via-white to-green-100 pt-0 pb-8">
                 <div className="mx-auto w-full max-w-7xl mt-6 sm:mt-10 px-4 sm:px-6 lg:px-8">
-                    <div className="rounded-xl border border-slate-200 bg-white shadow-lg p-8">
-                        <form onSubmit={handleSubmit(handleSearch)} className="space-y-10">
-                            {/* 代替したいもの */}
-                            <section className="space-y-4">
-                                <label htmlFor="targetSubstitute" className="mb-2 block text-sm font-medium text-slate-700">代替したいもの</label>
-                                <input
-                                    id="targetSubstitute"
-                                    {...register("targetSubstitute", {
-                                        required: "代替したいものを入力してください。"
-                                    })}
-                                    placeholder="代替したいものを入力してください。"
-                                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
-                                />
-                                {errors.targetSubstitute?.message && (
-                                    <span style={{ color: "red" }} className="error-message">{errors.targetSubstitute?.message}</span>
-                                )}
-                            </section>
-                            {/* is_vegan */}
-                            <section className="space-y-4">
-                                <label className="mb-2 block text-sm font-medium text-slate-700">ベジタリアン</label>
-                                <div className="flex items-center mb-4">
-                                    <input
-                                        id="is_vegan_true"
-                                        type="radio"
-                                        value="true"
-                                        {...register("is_vegan")}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                                    />
-                                    <label htmlFor="is_vegan_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        id="is_vegan_false"
-                                        type="radio"
-                                        value="false"
-                                        {...register("is_vegan")}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                                    />
-                                    <label htmlFor="is_vegan_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
-                                </div>
-                            </section>
-                            {/* is_gluten_free */}
-                            <section className="space-y-4">
-                                <label className="mb-2 block text-sm font-medium text-slate-700">グルテンフリー</label>
-                                <div className="flex items-center mb-4">
-                                    <input
-                                        id="is_gluten_free_true"
-                                        type="radio"
-                                        value="true"
-                                        {...register("is_gluten_free")}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                                    />
-                                    <label htmlFor="is_gluten_free_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        id="is_gluten_free_false"
-                                        type="radio"
-                                        value="false"
-                                        {...register("is_gluten_free")}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                                    />
-                                    <label htmlFor="is_gluten_free_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
-                                </div>
-                            </section>
-                            {/* allergies */}
-                            <section className="space-y-4">
-                                <label htmlFor="allergies" className="mb-2 block text-sm font-medium text-slate-700">アレルギー（カンマ区切りで入力）</label>
-                                <input
-                                    id="allergies"
-                                    {...register("allergies")}
-                                    placeholder="例: 卵, 乳, 小麦"
-                                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
-                                />
-                            </section>
-                            {/* チェックボックス（家にある調味料） */}
-                            <section className="space-y-4">
-                                <div className="flex items-baseline justify-between">
-                                    <label className="text-sm font-medium text-slate-700">家にある調味料</label>
-                                    <span className="text-xs text-slate-500">選択中: {selectedIngredients.length} 件</span>
-                                </div>
-                                <div className="max-h-80 overflow-y-auto rounded-lg border border-slate-200 bg-white p-4">
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                                        {ingredientData.map((ingredient) => (
-                                            <div key={ingredient.id}>
-                                                <label
-                                                    htmlFor={`ingredient-${ingredient.id}`}
-                                                    className="group relative block cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 transition has-[:checked]:border-blue-500 has-[:checked]:ring-2 has-[:checked]:ring-blue-100"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        id={`ingredient-${ingredient.id}`}
-                                                        className="peer sr-only"
-                                                        checked={selectedIngredients.includes(ingredient.id)}
-                                                        onChange={(e) => handleCheckboxChange(ingredient.id, e.target.checked)}
-                                                    />
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="mt-0.5 h-5 w-5 shrink-0 rounded border border-slate-300 transition peer-checked:border-blue-600 peer-checked:bg-blue-600" />
-                                                        <div>
-                                                            <p className="font-medium text-slate-900 text-sm">{ingredient.name}</p>
-                                                        </div>
-                                                    </div>
-                                                    <svg
-                                                        aria-hidden
-                                                        viewBox="0 0 24 24"
-                                                        className="pointer-events-none absolute right-3 top-3 h-5 w-5 opacity-0 transition-opacity peer-checked:opacity-100"
+                    <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+                        <CardHeader className="text-center pb-6">
+                            <CardTitle className="text-3xl font-extrabold text-green-700 text-center" data-testid="testSubstituteSearchTitle">代替品検索フォーム</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <form onSubmit={handleSubmit(handleSearch)} className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    {/* Left column: targetSubstitute, is_vegan, is_gluten_free, allergies */}
+                                    <div className="space-y-6">
+                                        {/* 代替したいもの */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="targetSubstitute" className="text-base font-semibold text-green-700">代替したいもの</Label>
+                                            <Input
+                                                id="targetSubstitute"
+                                                {...register("targetSubstitute", {
+                                                    required: "代替したいものを入力してください。",
+                                                })}
+                                                placeholder="例：バター、卵、小麦粉など"
+                                                className="placeholder:text-slate-400"
+                                            />
+                                            {errors.targetSubstitute?.message && (
+                                                <span className="text-red-500 text-sm">{errors.targetSubstitute.message}</span>
+                                            )}
+                                        </div>
+                                        {/* is_vegan */}
+                                        <div className="space-y-2">
+                                            <Label className="text-base font-semibold text-green-700">ベジタリアン</Label>
+                                            <Controller
+                                                name="is_vegan"
+                                                control={control}
+                                                defaultValue="false"
+                                                render={({ field }) => (
+                                                    <RadioGroup
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                        className="flex flex-row gap-6"
                                                     >
-                                                        <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600" />
-                                                    </svg>
-                                                </label>
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="true" id="is_vegan_true" />
+                                                            <Label htmlFor="is_vegan_true" className="font-normal">はい</Label>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="false" id="is_vegan_false" />
+                                                            <Label htmlFor="is_vegan_false" className="font-normal">いいえ</Label>
+                                                        </div>
+                                                    </RadioGroup>
+                                                )}
+                                            />
+                                        </div>
+                                        {/* is_gluten_free */}
+                                        <div className="space-y-2">
+                                            <Label className="text-base font-semibold text-green-700">グルテンフリー</Label>
+                                            <Controller
+                                                name="is_gluten_free"
+                                                control={control}
+                                                defaultValue="false"
+                                                render={({ field }) => (
+                                                    <RadioGroup
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                        className="flex flex-row gap-6"
+                                                    >
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="true" id="is_gluten_free_true" />
+                                                            <Label htmlFor="is_gluten_free_true" className="font-normal">はい</Label>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="false" id="is_gluten_free_false" />
+                                                            <Label htmlFor="is_gluten_free_false" className="font-normal">いいえ</Label>
+                                                        </div>
+                                                    </RadioGroup>
+                                                )}
+                                            />
+                                        </div>
+                                        {/* allergies */}
+                                        <div className="space-y-2">
+                                            <Label className="text-base font-semibold text-green-700">アレルギー（カンマ区切りで入力）</Label>
+                                            <Input
+                                                id="allergies"
+                                                {...register("allergies")}
+                                                placeholder="例: 卵, 乳, 小麦"
+                                                className="placeholder:text-slate-400"
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* Right column: 家にある調味料 */}
+                                    <div className="space-y-2">
+                                        <Label className="text-base font-semibold text-green-700">家にある調味料</Label>
+                                        <div className="h-64 overflow-y-auto border rounded-lg p-4 bg-muted/30">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {ingredientData.map((ingredient) => (
+                                                    <div key={ingredient.id} className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={`ingredient-${ingredient.id}`}
+                                                            checked={selectedIngredients.includes(ingredient.id)}
+                                                            onCheckedChange={(checked) =>
+                                                                handleCheckboxChange(ingredient.id, checked as boolean)
+                                                            }
+                                                        />
+                                                        <Label
+                                                            htmlFor={`ingredient-${ingredient.id}`}
+                                                            className="text-sm font-normal cursor-pointer"
+                                                        >
+                                                            {ingredient.name}
+                                                        </Label>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </section>
-                            {/* 検索ボタン */}
-                            <section className="space-y-4">
-                                <div className="flex items-center justify-end gap-3">
-                                    <button
-                                        type="submit"
-                                        className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
-                                    >
+                                {/* 検索ボタン */}
+                                <div className="flex justify-center pt-4">
+                                    <Button type="submit" size="lg" className="mt-6  flex items-center justify-center gap-3 rounded-lg bg-green-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition">
                                         検索
-                                    </button>
+                                    </Button>
                                 </div>
-                            </section>
-                            {/* 検索履歴テーブル */}
-                            <section className="space-y-4">
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full border-collapse text-sm rounded-lg shadow">
-                                        <thead>
-                                            <tr className="bg-slate-100">
-                                                <th className="px-4 py-2 font-bold text-slate-700">No</th>
-                                                <th className="px-4 py-2 font-bold text-slate-700">代替したいもの</th>
-                                                <th className="px-4 py-2 font-bold text-slate-700">出力結果</th>
-                                                <th className="px-4 py-2 font-bold text-slate-700">出力した日付</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {searchResults.map((result, index) => (
-                                                <tr
-                                                    key={result.id}
-                                                    className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                                                >
-                                                    <td className="px-4 py-2">{index + 1}</td>
-                                                    <td className="px-4 py-2">{result.query}</td>
-                                                    <td className="px-4 py-2">{result.ai_response}</td>
-                                                    <td className="px-4 py-2">{result.getFormattedDate()}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                        </form>
-                    </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                    {/* 検索中の表示 */}
+                    {isLoading && (
+                        <div className="mt-10 text-center text-lg font-semibold text-green-700">
+                            検索中です...
+                        </div>
+                    )}
+                    {/* 検索結果 */}
                     {latestResult && (
-                        <div className="mt-10 p-6 rounded-lg bg-blue-50 border border-blue-200 shadow-sm">
-                            <h2 className="text-xl font-bold text-blue-700 mb-2">検索結果</h2>
-                            <p className="whitespace-pre-line text-slate-800">{latestResult}</p>
+                        <div className="mt-10">
+                            <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+                                <CardHeader>
+                                    <CardTitle className="text-3xl font-extrabold text-green-700 text-center">検索結果</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <Textarea
+                                        value={latestResult}
+                                        readOnly
+                                        className="min-h-[300px] resize-none text-2xl md:text-3xl font-extrabold text-green-800 bg-green-50 leading-loose p-6"
+                                    />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+                    {/* 検索履歴 */}
+                    {searchResults.length > 0 && (
+                        <div className="mt-10">
+                            <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+                                <CardHeader>
+                                    <CardTitle className="text-xl font-semibold text-green-700">検索履歴</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="rounded-lg border bg-muted/30">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="border-border/50">
+                                                    <TableHead className="w-16 font-semibold text-green-700">No</TableHead>
+                                                    <TableHead className="font-semibold text-green-700">代替したいもの</TableHead>
+                                                    <TableHead className="font-semibold text-green-700">出力結果</TableHead>
+                                                    <TableHead className="w-32 font-semibold text-green-700">出力した日付</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {searchResults.map((result, index) => (
+                                                    <TableRow
+                                                        key={result.id}
+                                                        className="border-border/50"
+                                                    >
+                                                        <TableCell className="font-medium">{index + 1}</TableCell>
+                                                        <TableCell className="font-medium">{result.query}</TableCell>
+                                                        <TableCell className="max-w-md">
+                                                            <div className=" text-muted-foreground whitespace-pre-wrap break-words">{result.ai_response}</div>
+                                                        </TableCell>
+                                                        <TableCell className="text-muted-foreground">{result.getFormattedDate()}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     )}
                 </div>

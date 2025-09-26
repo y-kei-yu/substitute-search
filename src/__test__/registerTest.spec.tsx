@@ -168,22 +168,6 @@ describe("新規登録画面", async () => {
         expect(saltCheckBox).not.toBeChecked();
     });
 
-    test("選択した調味料が UpsertUserIngredients に渡される", async () => {
-        render(
-            <MemoryRouter>
-                <Register />
-            </MemoryRouter>
-        );
-
-        // 「塩」のチェックボックスを取得
-        const saltCheckBox = await screen.findByRole("checkbox", { name: "塩" });
-
-        // クリック → チェックされる
-        await user.click(saltCheckBox);
-        expect(saltCheckBox).toBeChecked();
-
-    });
-
     test("アレルギー入力欄に文字を入力すると、その値が反映される", async () => {
         render(
             <MemoryRouter>

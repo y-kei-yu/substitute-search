@@ -1,26 +1,42 @@
 import { signOut } from "../service/auth"
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
 
 export const Header = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
+    // ログアウトボタンを押下時
     const handleSignOut = async () => {
-        await signOut();
-        navigate("/");
-    };
+        await signOut()
+        navigate("/")
+    }
+
+    // タイトルをクリックした時
+    const handleTitle = async () => {
+        window.location.reload();
+
+    }
 
     return (
-        <header className="w-full bg-blue-500 text-white">
-            <div className="flex justify-between items-center p-5 flex-col md:flex-row">
-                <a className="flex title-font font-medium items-center text-white mb-4 md:mb-0">
-                    <h1 className="ml-3 text-xl text-white">代替品検索アプリ</h1>
-                </a>
-                <button
+        <header className="w-full border-b bg-gradient-to-r from-green-600 via-green-500 to-emerald-400 text-white shadow">
+            <div className="container mx-auto flex items-center justify-between p-4">
+                {/* 左側: ロゴ or アイコン */}
+                <div className="flex items-center gap-2">
+                    {/* PCのみアプリ名表示 */}
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-wide text-white cursor-pointer hover:text-green-200 transition-colors duration-200"
+                        onClick={handleTitle}>
+                        代替品検索アプリ
+                    </h1>
+                </div>
+
+                {/* 右側: ログアウトボタン */}
+                <Button
                     onClick={handleSignOut}
-                    className="ml-auto bg-white text-blue-600 hover:bg-blue-100 rounded px-4 py-2 text-sm font-medium"
+                    variant="secondary"
+                    className="text-green-700 font-medium bg-white rounded-md shadow-sm hover:bg-green-100 focus:outline-none focus:ring-4 focus:ring-green-200 transition-colors duration-200 cursor-pointer"
                 >
                     ログアウト
-                </button>
+                </Button>
             </div>
         </header>
     )

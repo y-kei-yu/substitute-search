@@ -86,7 +86,7 @@ export const Register = () => {
                                     required: "ニックネームの入力は必須です"
                                 })}
                                 placeholder="山田 太郎"
-                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-100"
                             />
                             {errors.name && (
                                 <span style={{ color: "red" }} data-testid="nameErrMsg">{errors.name.message}</span>
@@ -103,7 +103,7 @@ export const Register = () => {
                                     value="true"
                                     {...register("is_vegan")}
                                     data-testid="testVeganYes"
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
                                 />
                                 <label htmlFor="is_vegan_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
                             </div>
@@ -114,7 +114,7 @@ export const Register = () => {
                                     value="false"
                                     {...register("is_vegan")}
                                     data-testid="testVeganNo"
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
                                     defaultChecked
                                 />
                                 <label htmlFor="is_vegan_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
@@ -131,7 +131,7 @@ export const Register = () => {
                                     value="true"
                                     {...register("is_gluten_free")}
                                     data-testid="testGlutenYes"
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
                                 />
                                 <label htmlFor="is_gluten_free_true" className="ms-2 text-sm font-medium text-gray-900">はい</label>
                             </div>
@@ -142,7 +142,7 @@ export const Register = () => {
                                     value="false"
                                     {...register("is_gluten_free")}
                                     data-testid="testGlutenNo"
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
                                     defaultChecked
                                 />
                                 <label htmlFor="is_gluten_free_false" className="ms-2 text-sm font-medium text-gray-900">いいえ</label>
@@ -156,7 +156,7 @@ export const Register = () => {
                                 id="allergies"
                                 {...register("allergies")}
                                 placeholder="例: 卵, 乳, 小麦"
-                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-100"
                             />
                         </div>
 
@@ -172,7 +172,7 @@ export const Register = () => {
                                 <div key={ingredient.id} className="">
                                     <label
                                         htmlFor={`ingredient-${ingredient.id}`}
-                                        className="group relative block cursor-pointer rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md has-[:checked]:border-blue-500 has-[:checked]:ring-4 has-[:checked]:ring-blue-100"
+                                        className="group relative block cursor-pointer rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md has-[:checked]:border-green-500 has-[:checked]:ring-4 has-[:checked]:ring-green-100"
                                     >
                                         <input
                                             type="checkbox"
@@ -183,7 +183,7 @@ export const Register = () => {
                                             onChange={(e) => handleCheckboxChange(ingredient.id, e.target.checked)}
                                         />
                                         <div className="flex items-start gap-3">
-                                            <div className="mt-0.5 h-5 w-5 shrink-0 rounded border border-slate-300 transition peer-checked:border-blue-600 peer-checked:bg-blue-600" />
+                                            <div className="mt-0.5 h-5 w-5 shrink-0 rounded border border-slate-300 transition peer-checked:border-green-600 peer-checked:bg-green-600" />
                                             <div>
                                                 <p className="font-medium text-slate-900">{ingredient.name}</p>
                                                 <p className="mt-0.5 text-xs text-slate-500">チェックして登録</p>
@@ -195,7 +195,7 @@ export const Register = () => {
                                             viewBox="0 0 24 24"
                                             className="pointer-events-none absolute right-3 top-3 h-5 w-5 opacity-0 transition-opacity peer-checked:opacity-100"
                                         >
-                                            <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600" />
+                                            <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-600" />
                                         </svg>
                                     </label>
                                 </div>
@@ -206,7 +206,7 @@ export const Register = () => {
                         <div className="mt-8 flex items-center justify-end gap-3">
                             <button
                                 type="submit"
-                                className="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                className="inline-flex items-center rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-100"
                             >
                                 登録
                             </button>
