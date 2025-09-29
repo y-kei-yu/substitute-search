@@ -72,8 +72,15 @@ export const SubstituteSearch = () => {
             setAuthUser(data.user);
             // プロフィール取得
             const userProfile = await fetchUser(data.user.id);
+            console.log("fetchUser result:", userProfile);
             if (userProfile) {
                 // resetで初期値をセット
+                console.log("reset result", {
+                    targetSubstitute: "",
+                    is_vegan: userProfile.is_vegan ?? false,
+                    is_gluten_free: userProfile.is_gluten_free ?? false,
+                    allergies: userProfile.allergies ? userProfile.allergies.join(", ") : "",
+                })
                 reset({
                     targetSubstitute: "",
                     is_vegan: userProfile.is_vegan ?? false,
