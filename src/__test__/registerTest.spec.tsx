@@ -3,6 +3,16 @@ import { MemoryRouter } from "react-router-dom";
 import { Register } from "../pages/Register";
 import userEvent from "@testing-library/user-event";
 
+// Mock the ResizeObserver
+const ResizeObserverMock = vi.fn(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+}));
+
+// Stub the global ResizeObserver
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 // useNavigateのモック化(一部モック化)
 const mockedNavigator = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -85,8 +95,8 @@ describe("新規登録画面", async () => {
                 <Register />
             </MemoryRouter>
         );
-        const veganYes = screen.getByTestId("testVeganYes") as HTMLInputElement;
-        const veganNo = screen.getByTestId("testVeganNo") as HTMLInputElement;
+        const veganYes = screen.getByTestId("is_veganYes") as HTMLInputElement;
+        const veganNo = screen.getByTestId("is_veganNo") as HTMLInputElement;
 
         expect(veganYes).not.toBeChecked();
         expect(veganNo).toBeChecked(); // 初期は「いいえ」
@@ -98,13 +108,13 @@ describe("新規登録画面", async () => {
                 <Register />
             </MemoryRouter>
         );
-        const veganYes = screen.getByTestId("testVeganYes") as HTMLInputElement;
-        const veganNo = screen.getByTestId("testVeganNo") as HTMLInputElement;
+        const veganYes = screen.getByTestId("is_veganYes") as HTMLInputElement;
+        const veganNo = screen.getByTestId("is_veganNo") as HTMLInputElement;
 
         // 「はい」を選択
         await user.click(veganYes);
-        expect(veganYes.checked).toBe(true);
-        expect(veganNo.checked).toBe(false);
+        expect(veganYes).toBeChecked();
+        expect(veganNo).not.toBeChecked();
     });
 
     test("グルテンフリーのラジオボタンが表示され、初期値は「いいえ」になっている", async () => {
@@ -113,8 +123,8 @@ describe("新規登録画面", async () => {
                 <Register />
             </MemoryRouter>
         );
-        const glutenYes = screen.getByTestId("testGlutenYes") as HTMLInputElement;
-        const glutenNo = screen.getByTestId("testGlutenNo") as HTMLInputElement;
+        const glutenYes = screen.getByTestId("is_gluten_freeYes") as HTMLInputElement;
+        const glutenNo = screen.getByTestId("is_gluten_freeNo") as HTMLInputElement;
 
         expect(glutenYes).not.toBeChecked();
         expect(glutenNo).toBeChecked(); // 初期は「いいえ」
@@ -126,13 +136,13 @@ describe("新規登録画面", async () => {
                 <Register />
             </MemoryRouter>
         );
-        const glutenYes = screen.getByTestId("testGlutenYes") as HTMLInputElement;
-        const glutenNo = screen.getByTestId("testGlutenNo") as HTMLInputElement;
+        const glutenYes = screen.getByTestId("is_gluten_freeYes") as HTMLInputElement;
+        const glutenNo = screen.getByTestId("is_gluten_freeNo") as HTMLInputElement;
 
         // 「はい」を選択
         await user.click(glutenYes);
-        expect(glutenYes.checked).toBe(true);
-        expect(glutenNo.checked).toBe(false);
+        expect(glutenYes).toBeChecked();
+        expect(glutenNo).not.toBeChecked();
     });
 
     test("家にある調味料が表示される", async () => {
@@ -207,11 +217,11 @@ describe("新規登録画面", async () => {
         await user.type(screen.getByLabelText("ニックネーム"), "テストユーザー");
 
         // ヴィーガン「はい」を選択
-        const veganYes = screen.getByTestId("testVeganYes") as HTMLInputElement;
+        const veganYes = screen.getByTestId("is_veganYes") as HTMLInputElement;
         await user.click(veganYes);
 
         // グルテンフリー「はい」を選択
-        const glutenYes = screen.getByTestId("testGlutenYes") as HTMLInputElement;
+        const glutenYes = screen.getByTestId("is_gluten_freeYes") as HTMLInputElement;
         await user.click(glutenYes);
 
         // アレルギーを入力

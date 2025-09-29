@@ -15,7 +15,7 @@ export const UserProfileTextField = <T extends FieldValues>({
 }: UserProfileTextFieldProps<T>) => {
     return (
         <div className="space-y-2">
-            <Label className="text-base font-semibold text-green-700">{fieldLabel}</Label>
+            <Label htmlFor={name} className="text-base font-semibold text-green-700">{fieldLabel}</Label>
             <Input
                 id={name}
                 {...register(name)}

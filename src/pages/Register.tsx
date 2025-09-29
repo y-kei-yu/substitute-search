@@ -88,7 +88,7 @@ export const Register = () => {
                 <div className="mx-auto w-full max-w-7xl mt-6 sm:mt-10 px-4 sm:px-6 lg:px-8">
                     <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
                         <CardHeader className="text-center pb-6">
-                            <CardTitle className="text-3xl font-extrabold text-green-700 text-center" data-testid="testSubstituteSearchTitle">新規登録画面</CardTitle>
+                            <CardTitle className="text-3xl font-extrabold text-green-700 text-center" data-testid="testRegisterTitle">新規登録画面</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -126,7 +126,7 @@ export const Register = () => {
                                         {/* allergies */}
                                         <UserProfileTextField
                                             name="allergies"
-                                            fieldLabel="アレルギー（カンマ区切りで入力)"
+                                            fieldLabel="アレルギー（カンマ区切りで入力）"
                                             register={register}
                                         />
                                     </div>

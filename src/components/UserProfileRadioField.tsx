@@ -30,11 +30,11 @@ export const UserProfileRadioField = <T extends UserProfileFields>({
                             className="flex flex-row gap-6"
                         >
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="true" id={`${idPrefix}_true`} />
+                                <RadioGroupItem value="true" id={`${idPrefix}_true`} data-testid={`${idPrefix}Yes`} />
                                 <Label htmlFor={`${idPrefix}_true`} className="font-normal">はい</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="false" id={`${idPrefix}_false`} />
+                                <RadioGroupItem value="false" id={`${idPrefix}_false`} data-testid={`${idPrefix}No`} />
                                 <Label htmlFor={`${idPrefix}_false`} className="font-normal">いいえ</Label>
                             </div>
                         </RadioGroup>
