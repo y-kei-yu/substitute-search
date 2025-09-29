@@ -195,8 +195,8 @@ describe("新規登録画面", async () => {
             </MemoryRouter>
         );
         await user.clear(screen.getByLabelText("ニックネーム"));
-        const loginButton = await screen.findByRole("button", { name: "登録" })
-        await user.click(loginButton);
+        const registerButton = await screen.findByRole("button", { name: "登録" })
+        await user.click(registerButton);
         const errorMessage = await screen.getByTestId("nameErrMsg")
         expect(errorMessage).toHaveTextContent("ニックネームの入力は必須です")
     });

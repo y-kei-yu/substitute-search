@@ -186,7 +186,7 @@ export const SubstituteSearch = () => {
                                                 className="placeholder:text-slate-400"
                                             />
                                             {errors.targetSubstitute?.message && (
-                                                <span className="text-red-500 text-sm">{errors.targetSubstitute.message}</span>
+                                                <span className="text-red-500 text-sm" data-testid="substituteErrMsg">{errors.targetSubstitute.message}</span>
                                             )}
                                         </div>
                                         {/* is_vegan */}
@@ -221,7 +221,7 @@ export const SubstituteSearch = () => {
                                 {/* 登録・戻るボタンを横並びに配置 */}
                                 <div className="flex justify-center gap-4">
                                     <BackButton />
-                                    <SubmitButton buttonName="登録" />
+                                    <SubmitButton buttonName="検索" />
                                 </div>
                             </form>
                         </CardContent>
