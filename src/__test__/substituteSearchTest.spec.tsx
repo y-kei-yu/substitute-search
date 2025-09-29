@@ -119,6 +119,8 @@ describe("代替品検索画面", async () => {
                 <SubstituteSearch />
             </MemoryRouter>
         );
+        // デバッグ出力を追加
+        screen.debug();
 
         // 「はい」が選ばれていることを確認
         expect(await screen.findByTestId("is_veganYes")).toBeChecked();
@@ -145,4 +147,7 @@ describe("代替品検索画面", async () => {
         const errorMessage = await screen.getByTestId("substituteErrMsg")
         expect(errorMessage).toHaveTextContent("代替したいものを入力してください。")
     });
+    // test("入力して検索ボタンを押すと AI検索関数（モック）が呼ばれる",async () => {
+
+    // })
 })
