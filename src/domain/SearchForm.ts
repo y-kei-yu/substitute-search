@@ -1,6 +1,7 @@
-export type SearchForm = {
+import { UserProfileFields } from "./UserProfileFields";
+
+// 検索(SubstituteSearch)画面のフォーム用インターフェース
+// UserProfileFields を継承しつつ、追加で targetSubstitute を持つ
+export interface SearchForm extends UserProfileFields {
   targetSubstitute: string;
-  is_vegan: string;
-  is_gluten_free: string;
-  allergies: string;
-};
+}

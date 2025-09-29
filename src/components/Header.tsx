@@ -1,9 +1,13 @@
 import { signOut } from "../service/auth"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/utils/supabase"
+import { fetchUser } from "@/service/fetchUser"
+import { useEffect, useState } from "react"
 
 export const Header = () => {
     const navigate = useNavigate()
+    const [nickname, setNickname] = useState<string | null>(null);
 
     // ログアウトボタンを押下時
     const handleSignOut = async () => {
@@ -14,8 +18,20 @@ export const Header = () => {
     // タイトルをクリックした時
     const handleTitle = async () => {
         window.location.reload();
-
     }
+
+    //ニックネームを取得
+    const fetchUserNickName = async () => {
+        const { data } = await supabase.auth.getUser()
+        if (data.user) {
+            // プロフィール取得
+            const userProfile = await fetchUser(data.user.id);
+            if (userProfile) setNickname(userProfile.name);
+        }
+    }
+    useEffect(() => {
+        fetchUserNickName();
+    }, [])
 
     return (
         <header className="w-full border-b bg-gradient-to-r from-green-600 via-green-500 to-emerald-400 text-white shadow">
@@ -30,13 +46,16 @@ export const Header = () => {
                 </div>
 
                 {/* 右側: ログアウトボタン */}
-                <Button
-                    onClick={handleSignOut}
-                    variant="secondary"
-                    className="text-green-700 font-medium bg-white rounded-md shadow-sm hover:bg-green-100 focus:outline-none focus:ring-4 focus:ring-green-200 transition-colors duration-200 cursor-pointer"
-                >
-                    ログアウト
-                </Button>
+                <div className="flex items-center gap-4">
+                    {nickname && <span className="font-semibold">{nickname}さん</span>}
+                    <Button
+                        onClick={handleSignOut}
+                        variant="secondary"
+                        className="text-green-700 font-medium bg-white rounded-md shadow-sm hover:bg-green-100 focus:outline-none focus:ring-4 focus:ring-green-200 transition-colors duration-200 cursor-pointer"
+                    >
+                        ログアウト
+                    </Button>
+                </div>
             </div>
         </header>
     )

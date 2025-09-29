@@ -1,12 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { getAllIngredients } from "../service/getAllIngredients";
 import { Ingredients } from "../domain/Ingredients";
 import { SearchHistory } from "../domain/SearchHistory";
@@ -23,6 +20,11 @@ import { upsertUserData } from "../service/upsertUserData";
 import { insertUserSearchHistory } from "../service/insertUserSearchHistory";
 import { upsertUserIngredients } from "../service/upsertUserIngredients";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { UserProfileRadioField } from "@/components/UserProfileRadioField";
+import { UserProfileTextField } from "@/components/UserProfileTextField";
+import { IngredientCheckBox } from "@/components/IngredientCheckBox";
+import { SubmitButton } from "@/components/layouts/SubmitButton";
+import { BackButton } from "@/components/layouts/BackButton";
 
 
 
@@ -74,8 +76,8 @@ export const SubstituteSearch = () => {
                 // resetで初期値をセット
                 reset({
                     targetSubstitute: "",
-                    is_vegan: userProfile.is_vegan !== undefined ? String(userProfile.is_vegan) : "false",
-                    is_gluten_free: userProfile.is_gluten_free !== undefined ? String(userProfile.is_gluten_free) : "false",
+                    is_vegan: userProfile.is_vegan ?? false,
+                    is_gluten_free: userProfile.is_gluten_free ?? false,
                     allergies: userProfile.allergies ? userProfile.allergies.join(", ") : "",
                 });
             }
@@ -111,8 +113,8 @@ export const SubstituteSearch = () => {
             - 必ず「代替食材」「分量」の2行で答える
 
             条件:
-            ${data.is_vegan === "true" ? "- 動物性の材料は使わない" : ""}
-            ${data.is_gluten_free === "true" ? "- 小麦を含む材料は使わない" : ""}
+            ${data.is_vegan ? "- 動物性の材料は使わない" : ""}
+            ${data.is_gluten_free ? "- 小麦を含む材料は使わない" : ""}
             ${data.allergies ? `- 以下のアレルゲンは使わない: ${data.allergies}` : ""}
             - 家にある食材: ${ingredientData
                 .filter((i) => selectedIngredients.includes(i.id))
@@ -188,97 +190,38 @@ export const SubstituteSearch = () => {
                                             )}
                                         </div>
                                         {/* is_vegan */}
-                                        <div className="space-y-2">
-                                            <Label className="text-base font-semibold text-green-700">ベジタリアン</Label>
-                                            <Controller
-                                                name="is_vegan"
-                                                control={control}
-                                                defaultValue="false"
-                                                render={({ field }) => (
-                                                    <RadioGroup
-                                                        value={field.value}
-                                                        onValueChange={field.onChange}
-                                                        className="flex flex-row gap-6"
-                                                    >
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="true" id="is_vegan_true" />
-                                                            <Label htmlFor="is_vegan_true" className="font-normal">はい</Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="false" id="is_vegan_false" />
-                                                            <Label htmlFor="is_vegan_false" className="font-normal">いいえ</Label>
-                                                        </div>
-                                                    </RadioGroup>
-                                                )}
-                                            />
-                                        </div>
+                                        <UserProfileRadioField
+                                            fieldLabel="ベジタリアン"
+                                            name={"is_vegan"}
+                                            control={control}
+                                            idPrefix="is_vegan"
+                                        />
                                         {/* is_gluten_free */}
-                                        <div className="space-y-2">
-                                            <Label className="text-base font-semibold text-green-700">グルテンフリー</Label>
-                                            <Controller
-                                                name="is_gluten_free"
-                                                control={control}
-                                                defaultValue="false"
-                                                render={({ field }) => (
-                                                    <RadioGroup
-                                                        value={field.value}
-                                                        onValueChange={field.onChange}
-                                                        className="flex flex-row gap-6"
-                                                    >
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="true" id="is_gluten_free_true" />
-                                                            <Label htmlFor="is_gluten_free_true" className="font-normal">はい</Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="false" id="is_gluten_free_false" />
-                                                            <Label htmlFor="is_gluten_free_false" className="font-normal">いいえ</Label>
-                                                        </div>
-                                                    </RadioGroup>
-                                                )}
-                                            />
-                                        </div>
+                                        <UserProfileRadioField
+                                            fieldLabel="グルテンフリー"
+                                            name={"is_gluten_free"}
+                                            control={control}
+                                            idPrefix="is_gluten_free"
+                                        />
                                         {/* allergies */}
-                                        <div className="space-y-2">
-                                            <Label className="text-base font-semibold text-green-700">アレルギー（カンマ区切りで入力）</Label>
-                                            <Input
-                                                id="allergies"
-                                                {...register("allergies")}
-                                                placeholder="例: 卵, 乳, 小麦"
-                                                className="placeholder:text-slate-400"
-                                            />
-                                        </div>
+                                        <UserProfileTextField
+                                            name="allergies"
+                                            fieldLabel="アレルギー（カンマ区切りで入力)"
+                                            register={register}
+                                        />
                                     </div>
                                     {/* Right column: 家にある調味料 */}
-                                    <div className="space-y-2">
-                                        <Label className="text-base font-semibold text-green-700">家にある調味料</Label>
-                                        <div className="h-64 overflow-y-auto border rounded-lg p-4 bg-muted/30">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                {ingredientData.map((ingredient) => (
-                                                    <div key={ingredient.id} className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={`ingredient-${ingredient.id}`}
-                                                            checked={selectedIngredients.includes(ingredient.id)}
-                                                            onCheckedChange={(checked) =>
-                                                                handleCheckboxChange(ingredient.id, checked as boolean)
-                                                            }
-                                                        />
-                                                        <Label
-                                                            htmlFor={`ingredient-${ingredient.id}`}
-                                                            className="text-sm font-normal cursor-pointer"
-                                                        >
-                                                            {ingredient.name}
-                                                        </Label>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <IngredientCheckBox
+                                        fieldLabel="家にある調味料"
+                                        ingredientData={ingredientData}
+                                        selectedIngredients={selectedIngredients}
+                                        onChange={handleCheckboxChange}
+                                    />
                                 </div>
-                                {/* 検索ボタン */}
-                                <div className="flex justify-center pt-4">
-                                    <Button type="submit" size="lg" className="mt-6  flex items-center justify-center gap-3 rounded-lg bg-green-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition">
-                                        検索
-                                    </Button>
+                                {/* 登録・戻るボタンを横並びに配置 */}
+                                <div className="flex justify-center gap-4">
+                                    <BackButton />
+                                    <SubmitButton buttonName="登録" />
                                 </div>
                             </form>
                         </CardContent>
@@ -350,4 +293,3 @@ export const SubstituteSearch = () => {
         </>
     );
 };
-
