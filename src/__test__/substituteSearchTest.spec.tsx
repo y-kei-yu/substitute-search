@@ -123,8 +123,8 @@ describe("代替品検索画面", async () => {
         screen.debug();
 
         // 「はい」が選ばれていることを確認
-        expect(await screen.findByTestId("is_veganYes")).toBeChecked();
-        expect(await screen.findByTestId("is_gluten_freeYes")).toBeChecked();
+        expect(await screen.findByTestId("is_veganYes")).toHaveAttribute("aria-checked", "true")
+        expect(await screen.findByTestId("is_gluten_freeYes")).toHaveAttribute("aria-checked", "true")
 
         // アレルギー入力欄に「卵」が表示される
         expect(await screen.findByLabelText("アレルギー（カンマ区切りで入力)"))
