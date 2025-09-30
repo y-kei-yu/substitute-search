@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { SubstituteSearch } from "../pages/SubstituteSearch";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
@@ -123,8 +123,10 @@ describe("代替品検索画面", async () => {
         screen.debug();
 
         // 「はい」が選ばれていることを確認
-        expect(await screen.findByTestId("is_veganYes")).toHaveAttribute("aria-checked", "true")
-        expect(await screen.findByTestId("is_gluten_freeYes")).toHaveAttribute("aria-checked", "true")
+        await waitFor(() => {
+            expect(screen.getByTestId("is_veganYes")).toBeChecked();
+            expect(screen.getByTestId("is_gluten_freeYes")).toBeChecked();
+        });
 
         // アレルギー入力欄に「卵」が表示される
         expect(await screen.findByLabelText("アレルギー（カンマ区切りで入力)"))
