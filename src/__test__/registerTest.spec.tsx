@@ -35,6 +35,7 @@ const { getAllIngredientsMock, upsertUserDataMock, upsertUserIngredientsMock, su
         supabaseMock: {
             auth: {
                 getUser: vi.fn(),
+                signOut: vi.fn(),
             }
         },
         getAllIngredientsMock: vi.fn().mockResolvedValue(mockIngredients),
@@ -56,6 +57,9 @@ vi.mock("../service/upsertUserIngredients", () => ({
 }));
 vi.mock("../utils/supabase", () => ({
     supabase: supabaseMock,
+}));
+vi.mock("../service/auth", () => ({
+    signOut: vi.fn().mockResolvedValue(undefined),
 }));
 
 // テストで使うユーザー操作イベントを定義
@@ -246,4 +250,23 @@ describe("新規登録画面", async () => {
         // 代替品検索画面に遷移する
         expect(mockedNavigator).toHaveBeenCalledWith("/substitute-search");
     });
+
+    test("戻るボタンをクリックしたら、ログイン画面に遷移する", async () => {
+
+        // ユーザーを取得
+        supabaseMock.auth.getUser.mockResolvedValue({
+            data: { user: { id: "user-123", email: "test@test.com" } }
+        });
+        render(
+            <MemoryRouter>
+                <Register />
+            </MemoryRouter>
+        );
+        // 戻るボタン押下
+        const backButton = screen.getByRole("button", { name: "戻る" });
+        await user.click(backButton);
+        // ログイン画面に遷移する
+        expect(mockedNavigator).toHaveBeenCalledWith("/");
+    })
+
 })
