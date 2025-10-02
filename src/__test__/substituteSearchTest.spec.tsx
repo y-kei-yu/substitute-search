@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { SubstituteSearch } from "../pages/SubstituteSearch";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import * as InsertHistoryModule from "../service/insertUserSearchHistory";
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
