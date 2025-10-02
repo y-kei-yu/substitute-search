@@ -109,9 +109,6 @@ export const SubstituteSearch = () => {
     // 検索ボタンクリック時の処理
     const handleSearch: SubmitHandler<SearchForm> = (data) => {
         setIsLoading(true);
-        // data: targetSubstitute, is_vegan, is_gluten_free, allergies
-        console.log("検索フォーム:", data);
-        console.log("選択中の食材:", selectedIngredients);
         // The client gets the API key from the environment variable `GEMINI_API_KEY`.
         const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
         const prompt = `
@@ -144,11 +141,13 @@ export const SubstituteSearch = () => {
                     // UserForm → User に変換して保存
                     const user = toUser(data, authUser.id, authUser.email ?? "");
                     await upsertUserData(user);
+
                     await insertUserSearchHistory({
                         user_id: authUser.id,
                         query: data.targetSubstitute,
                         ai_response: response.text ?? "",
                     });
+
                     await userSearchHistory();
                     await upsertUserIngredients(authUser.id, selectedIngredients);
                 }
@@ -158,7 +157,7 @@ export const SubstituteSearch = () => {
                 } else {
                     console.error("Gemini API unknown error:", error);
                 }
-                setLatestResult("⚠️ サーバーが混雑しています。しばらくしてからもう一度お試しください。");
+                setLatestResult("サーバーが混雑しています。しばらくしてからもう一度お試しください。");
             } finally {
                 setIsLoading(false);
             }
@@ -235,7 +234,7 @@ export const SubstituteSearch = () => {
                     </Card>
                     {/* 検索中の表示 */}
                     {isLoading && (
-                        <div className="mt-10 text-center text-lg font-semibold text-green-700">
+                        <div className="mt-10 text-center text-lg font-semibold text-green-700" data-testid="loadingTest">
                             検索中です...
                         </div>
                     )}

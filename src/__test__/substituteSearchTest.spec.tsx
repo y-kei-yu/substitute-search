@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { SubstituteSearch } from "../pages/SubstituteSearch";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-
+import * as InsertHistoryModule from "../service/insertUserSearchHistory";
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -26,7 +26,7 @@ vi.mock("react-router-dom", async () => {
 // テストで使うユーザー操作イベントを定義
 const user = userEvent.setup();
 
-const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUserSearchHistoryMock, supabaseMock } = vi.hoisted(() => {
+const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUserSearchHistoryMock, insertUserSearchHistoryMock, supabaseMock, generateContentMock } = vi.hoisted(() => {
     // テストデータ
     const mockIngredients = [
         { id: 1, name: "塩" },
@@ -37,12 +37,21 @@ const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUse
         supabaseMock: {
             auth: {
                 getUser: vi.fn(),
-            }
+            },
+            from: vi.fn(() => ({
+                upsert: vi.fn().mockResolvedValue({ error: null, data: [] }),
+                eq: vi.fn().mockReturnThis(),
+            })),
         },
         getAllIngredientsMock: vi.fn().mockResolvedValue(mockIngredients),
         fetchUserMock: vi.fn(),
         fetchUserIngredientsMock: vi.fn(),
         fetchUserSearchHistoryMock: vi.fn().mockResolvedValue([]),
+        insertUserSearchHistoryMock: vi.fn(),
+        generateContentMock: vi.fn().mockResolvedValue({
+            text: "ダミーAIレスポンス",
+        }),
+
     }
 });
 vi.mock("../service/getAllIngredients", () => ({
@@ -57,13 +66,25 @@ vi.mock("../service/fetchUserIngredients", () => ({
 vi.mock("../service/fetchUserSearchHistory", () => ({
     fetchUserSearchHistory: fetchUserSearchHistoryMock
 }));
+vi.mock("../service/insertUserSearchHistory", () => ({
+    insertUserSearchHistory: insertUserSearchHistoryMock,
+}));
 vi.mock("../utils/supabase", () => ({
     supabase: supabaseMock,
 }));
-
+vi.mock("@google/genai", () => {
+    return {
+        GoogleGenAI: vi.fn().mockImplementation(() => ({
+            models: {
+                generateContent: generateContentMock,
+            }
+        }))
+    }
+})
 
 
 describe("代替品検索画面", async () => {
+
     // セッションの初期化
     beforeEach(() => {
         supabaseMock.auth.getUser.mockResolvedValue({ data: { user: null } });
@@ -120,7 +141,7 @@ describe("代替品検索画面", async () => {
             </MemoryRouter>
         );
         // デバッグ出力を追加
-        screen.debug();
+        // screen.debug();
 
         // 「はい」が選ばれていることを確認
         await waitFor(() => {
@@ -149,7 +170,121 @@ describe("代替品検索画面", async () => {
         const errorMessage = await screen.getByTestId("substituteErrMsg")
         expect(errorMessage).toHaveTextContent("代替したいものを入力してください。")
     });
-    // test("入力して検索ボタンを押すと AI検索関数（モック）が呼ばれる",async () => {
 
-    // })
+    test("入力して検索ボタンを押すと AI検索関数（モック）が呼ばれる", async () => {
+        render(
+            <MemoryRouter>
+                <SubstituteSearch />
+            </MemoryRouter>
+        );
+
+        await user.type(screen.getByLabelText("代替したいもの"), "バター");
+        const SearchButton = await screen.findByRole("button", { name: "検索" })
+        await user.click(SearchButton);
+
+        await waitFor(() => {
+            expect(generateContentMock).toHaveBeenCalled();
+        })
+    })
+
+    test("検索クリックでローディングが出て、AIからの結果が出たらローディングが消える", async () => {
+        let resolvePromise!: (val: { text: string }) => void;
+        const promise = new Promise((resolve) => {
+            resolvePromise = resolve;
+        })
+        generateContentMock.mockReturnValue(promise)
+
+        render(
+            <MemoryRouter>
+                <SubstituteSearch />
+            </MemoryRouter>
+        );
+        await user.type(screen.getByLabelText("代替したいもの"), "バター");
+        const SearchButton = await screen.findByRole("button", { name: "検索" })
+        await user.click(SearchButton);
+
+        // ローディングが表示される
+        const loading = await screen.findByTestId("loadingTest");
+        expect(loading).toBeInTheDocument();
+
+        // モックのPromiseを解決してAIレスポンスを返す
+        resolvePromise({ text: "ダミーAIレスポンス" });
+
+        // ローディングが消え、結果が表示される
+        await waitFor(() => {
+            expect(screen.queryByTestId("loadingTest")).not.toBeInTheDocument();
+            expect(screen.getByText("ダミーAIレスポンス")).toBeInTheDocument();
+        });
+    });
+
+    test("AI が失敗したら「 サーバーが混雑しています…」が表示される", async () => {
+        generateContentMock.mockRejectedValue(new Error("APIエラー"))
+        render(
+            <MemoryRouter>
+                <SubstituteSearch />
+            </MemoryRouter>
+        );
+        await user.type(screen.getByLabelText("代替したいもの"), "バター");
+        const SearchButton = await screen.findByRole("button", { name: "検索" })
+        await user.click(SearchButton);
+        await waitFor(() => {
+            expect(screen.getByText("サーバーが混雑しています。しばらくしてからもう一度お試しください。")).toBeInTheDocument();
+        });
+    })
+
+    test("呼ばれるか", async () => {
+        console.log("insertUserSearchHistory is mock?", vi.isMockFunction(InsertHistoryModule.insertUserSearchHistory));
+    });
+
+    test("検索した内容が履歴に追加される", async () => {
+        // ユーザーを取得
+        supabaseMock.auth.getUser.mockResolvedValue({
+            data: { user: { id: "user-123", email: "test@test.com" } }
+        });
+
+        // プロフィールも返す
+        fetchUserMock.mockResolvedValue({
+            is_vegan: false,
+            is_gluten_free: false,
+            allergies: [],
+        });
+
+        fetchUserSearchHistoryMock
+            .mockResolvedValueOnce([]) // 初期状態では履歴なし
+            .mockResolvedValueOnce([   // 検索後
+                {
+                    id: 1,
+                    query: "バター",
+                    ai_response: "ダミーAIレスポンス",
+                    getFormattedDate: () => "2025-10-02",
+                },
+            ]);
+
+        let resolvePromise!: (val: { text: string }) => void;
+        const promise = new Promise<{ text: string }>((resolve) => {
+            resolvePromise = resolve;
+        });
+        generateContentMock.mockReturnValueOnce(promise);
+
+        render(
+            <MemoryRouter>
+                <SubstituteSearch />
+            </MemoryRouter>
+        );
+        await waitFor(() => {
+            expect(supabaseMock.auth.getUser).toHaveBeenCalled();
+        });
+        await user.type(screen.getByLabelText("代替したいもの"), "バター");
+        const SearchButton = await screen.findByRole("button", { name: "検索" })
+        await user.click(SearchButton);
+
+        resolvePromise({ text: "ダミーAIレスポンス" });
+        await waitFor(() => {
+            console.log("calls:", insertUserSearchHistoryMock.mock.calls);
+            expect(insertUserSearchHistoryMock).toHaveBeenCalled();
+            expect(screen.getByText("バター")).toBeInTheDocument();
+            expect(screen.getByText("ダミーAIレスポンス")).toBeInTheDocument();
+        });
+
+    })
 })
