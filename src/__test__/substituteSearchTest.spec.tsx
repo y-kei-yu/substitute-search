@@ -82,7 +82,6 @@ vi.mock("@google/genai", () => {
     }
 })
 
-
 describe("代替品検索画面", async () => {
 
     // セッションの初期化
@@ -232,21 +231,10 @@ describe("代替品検索画面", async () => {
         });
     })
 
-    test("呼ばれるか", async () => {
-        console.log("insertUserSearchHistory is mock?", vi.isMockFunction(InsertHistoryModule.insertUserSearchHistory));
-    });
-
     test("検索した内容が履歴に追加される", async () => {
         // ユーザーを取得
         supabaseMock.auth.getUser.mockResolvedValue({
             data: { user: { id: "user-123", email: "test@test.com" } }
-        });
-
-        // プロフィールも返す
-        fetchUserMock.mockResolvedValue({
-            is_vegan: false,
-            is_gluten_free: false,
-            allergies: [],
         });
 
         fetchUserSearchHistoryMock

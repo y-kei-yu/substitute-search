@@ -40,7 +40,6 @@ export const SubstituteSearch = () => {
     // 初期ロード時に一度だけ呼ぶ
     useEffect(() => {
         allIngredients();
-        userSearchHistory();
         fetchAuthUserAndProfile();
     }, []);
 
@@ -75,12 +74,6 @@ export const SubstituteSearch = () => {
             console.log("fetchUser result:", userProfile);
             if (userProfile) {
                 // resetで初期値をセット
-                console.log("reset result", {
-                    targetSubstitute: "",
-                    is_vegan: userProfile.is_vegan ?? false,
-                    is_gluten_free: userProfile.is_gluten_free ?? false,
-                    allergies: userProfile.allergies ? userProfile.allergies.join(", ") : "",
-                })
                 reset({
                     targetSubstitute: "",
                     is_vegan: userProfile.is_vegan ?? false,
@@ -90,6 +83,17 @@ export const SubstituteSearch = () => {
             }
         }
     };
+
+    // AI呼び出し処理
+    const callAI = async (prompt: string) => {
+        const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        return response.text ?? "";
+    }
+
     // ユーザーが選択した食材を取得
     const fetchUserIngredientsData = async () => {
         if (!authUser) return;
@@ -107,10 +111,8 @@ export const SubstituteSearch = () => {
     };
 
     // 検索ボタンクリック時の処理
-    const handleSearch: SubmitHandler<SearchForm> = (data) => {
+    const handleSearch: SubmitHandler<SearchForm> = async (data) => {
         setIsLoading(true);
-        // The client gets the API key from the environment variable `GEMINI_API_KEY`.
-        const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
         const prompt = `
             「${data.targetSubstitute}」が無い場合の代替食材と分量を提案してください。
             - 家庭にある調味料を優先する
@@ -128,42 +130,33 @@ export const SubstituteSearch = () => {
             代替食材: （材料名をカンマ区切りで書く）
             分量: （「材料: 量」の形式でカンマ区切りで書く）
         `;
+        try {
+            const result = await callAI(prompt);
+            setLatestResult(result);  // 検索直後に画面へ表示
+            if (authUser) {
+                // UserForm → User に変換して保存
+                const user = toUser(data, authUser.id, authUser.email ?? "");
+                await upsertUserData(user);
 
-        async function callAI() {
-            try {
-                const response = await ai.models.generateContent({
-                    model: "gemini-2.5-flash",
-                    contents: prompt,
+                await insertUserSearchHistory({
+                    user_id: authUser.id,
+                    query: data.targetSubstitute,
+                    ai_response: result,
                 });
-                console.log(response.text);
-                setLatestResult(response.text ?? null);  // 検索直後に画面へ表示
-                if (authUser) {
-                    // UserForm → User に変換して保存
-                    const user = toUser(data, authUser.id, authUser.email ?? "");
-                    await upsertUserData(user);
 
-                    await insertUserSearchHistory({
-                        user_id: authUser.id,
-                        query: data.targetSubstitute,
-                        ai_response: response.text ?? "",
-                    });
-
-                    await userSearchHistory();
-                    await upsertUserIngredients(authUser.id, selectedIngredients);
-                }
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Gemini API error:", error.message);
-                } else {
-                    console.error("Gemini API unknown error:", error);
-                }
-                setLatestResult("サーバーが混雑しています。しばらくしてからもう一度お試しください。");
-            } finally {
-                setIsLoading(false);
+                await userSearchHistory();
+                await upsertUserIngredients(authUser.id, selectedIngredients);
             }
-        };
-
-        callAI();
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("Gemini API error:", error.message);
+            } else {
+                console.error("Gemini API unknown error:", error);
+            }
+            setLatestResult("サーバーが混雑しています。しばらくしてからもう一度お試しください。");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -224,9 +217,8 @@ export const SubstituteSearch = () => {
                                         onChange={handleCheckboxChange}
                                     />
                                 </div>
-                                {/* 登録・戻るボタンを横並びに配置 */}
+                                {/* 登録ボタンを横並びに配置 */}
                                 <div className="flex justify-center gap-4">
-                                    <BackButton />
                                     <SubmitButton buttonName="検索" />
                                 </div>
                             </form>
