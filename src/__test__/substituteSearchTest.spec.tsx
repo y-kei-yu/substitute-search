@@ -272,6 +272,9 @@ describe("代替品検索画面", async () => {
             expect(screen.getByText("バター")).toBeInTheDocument();
             expect(screen.getByText("ダミーAIレスポンス")).toBeInTheDocument();
         });
+    })
+
+    test("調味料のランキングが正しく集計される", async () => {
 
     })
 })

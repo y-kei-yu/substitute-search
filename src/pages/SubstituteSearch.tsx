@@ -24,11 +24,13 @@ import { UserProfileRadioField } from "@/components/UserProfileRadioField";
 import { UserProfileTextField } from "@/components/UserProfileTextField";
 import { IngredientCheckBox } from "@/components/IngredientCheckBox";
 import { SubmitButton } from "@/components/layouts/SubmitButton";
+import { fetchIngredientsRanking } from "@/service/fetchIngredientsRanking";
+import { RankedIngredient } from "@/domain/RankedIngredient";
 
 
 
 export const SubstituteSearch = () => {
-    const [ingredientData, setIngredientData] = useState<Ingredients[]>([]);
+    const [ingredientData, setIngredientData] = useState<RankedIngredient[]>([]);
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
     const [searchResults, setSearchResults] = useState<SearchHistory[]>([]);
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
@@ -38,7 +40,7 @@ export const SubstituteSearch = () => {
 
     // 初期ロード時に一度だけ呼ぶ
     useEffect(() => {
-        allIngredients();
+        loadRankedIngredients();
         fetchAuthUserAndProfile();
     }, []);
 
@@ -50,11 +52,39 @@ export const SubstituteSearch = () => {
         }
     }, [authUser]);
 
-    // 材料テーブルから全データを取得する
-    const allIngredients = async () => {
-        const ingredientData = await getAllIngredients();
-        setIngredientData(ingredientData);
-    };
+    // 材料テーブルをランキング順で表示する
+    const loadRankedIngredients = async () => {
+        const allIngredients = await getAllIngredients();
+        const topRankedItems = await fetchIngredientsRanking();
+
+        // ランキングに載っている食材IDだけを順位順に並べた配列にする
+        const rankedIngredientIds = topRankedItems.map((item) => item.ingredient_id);
+        console.log(rankedIngredientIds)
+
+        // 順位順に対応する食材オブジェクトを取得する
+        const rankedIngredients: Ingredients[] = [];
+        rankedIngredientIds.forEach((id, index) => {
+            const ingredient = allIngredients.find((i) => i.id === id);
+            if (ingredient) {
+                // rank設定
+                rankedIngredients.push({ ...ingredient, rank: index + 1 })
+            }
+        })
+
+        // ランキングに出てこなかった食材を集める
+        // set hasはJavaScriptの機能
+        const rankedIdSet = new Set(rankedIngredientIds);
+        const unRankedIngredients: RankedIngredient[] = allIngredients
+            .filter((ingredient) => !rankedIdSet.has(ingredient.id))
+
+        const sortedIngredients: RankedIngredient[] = [
+            ...rankedIngredients,
+            ...unRankedIngredients
+        ];
+
+        setIngredientData(sortedIngredients);
+    }
+
 
     // ユーザーごとの検索履歴を表示する
     const userSearchHistory = async () => {

@@ -1,10 +1,10 @@
-import { Ingredients } from "@/domain/Ingredients";
 import { Checkbox } from "./ui/checkbox"
 import { Label } from "./ui/label"
+import { RankedIngredient } from "@/domain/RankedIngredient";
 
 type IngredientCheckBoxProps = {
     fieldLabel: string
-    ingredientData: Ingredients[];
+    ingredientData: RankedIngredient[];
     selectedIngredients: number[];
     onChange: (id: number, checked: boolean) => void;
 };
@@ -31,12 +31,15 @@ export const IngredientCheckBox = ({ fieldLabel, ingredientData, selectedIngredi
                                     className="text-sm font-normal cursor-pointer"
                                 >
                                     {ingredient.name}
+                                    {ingredient.rank && (
+                                        <span className="ml-2 text-xs text-green-600">(TOP{ingredient.rank})</span>
+                                    )}
                                 </Label>
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     )
 }
