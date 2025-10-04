@@ -88,7 +88,6 @@ export const SubstituteSearch = () => {
 
     // AI呼び出し処理
     const callAI = async (prompt: string) => {
-        console.log("VITE_GEMINI_API_KEY:", import.meta.env.VITE_GEMINI_API_KEY);
         const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
