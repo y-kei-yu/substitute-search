@@ -18,7 +18,14 @@ const { fetchUserMock, supabaseMock } = vi.hoisted(() => {
     return {
         supabaseMock: {
             auth: {
-                getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-123" } } })
+                getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-123" } } }),
+                onAuthStateChange: vi.fn().mockReturnValue({
+                    data: {
+                        subscription: {
+                            unsubscribe: vi.fn(),
+                        },
+                    },
+                }),
             }
         },
         fetchUserMock: vi.fn().mockResolvedValue({ name: "テストユーザー" }),

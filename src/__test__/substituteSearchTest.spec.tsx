@@ -36,7 +36,15 @@ const { loadRankedIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetc
         supabaseMock: {
             auth: {
                 getUser: vi.fn(),
+                onAuthStateChange: vi.fn().mockReturnValue({
+                    data: {
+                        subscription: {
+                            unsubscribe: vi.fn(),
+                        },
+                    },
+                }),
             },
+
             from: vi.fn(() => ({
                 upsert: vi.fn().mockResolvedValue({ error: null, data: [] }),
                 eq: vi.fn().mockReturnThis(),
