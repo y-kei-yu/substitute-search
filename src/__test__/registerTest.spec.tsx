@@ -24,12 +24,12 @@ vi.mock("react-router-dom", async () => {
 });
 
 // モック定義（外部依存を差し替え）
-const { getAllIngredientsMock, upsertUserDataMock, upsertUserIngredientsMock, supabaseMock } = vi.hoisted(() => {
+const { loadRankedIngredientsMock, upsertUserDataMock, upsertUserIngredientsMock, supabaseMock } = vi.hoisted(() => {
     // テストデータ
-    const mockIngredients = [
-        { id: 1, name: "塩" },
-        { id: 2, name: "砂糖" },
-        { id: 3, name: "醤油" },
+    const mockRankedIngredients = [
+        { id: 1, name: "塩", created_at: "2025-01-01", rank: 1 },
+        { id: 2, name: "砂糖", created_at: "2025-01-02", rank: 2 },
+        { id: 3, name: "醤油", created_at: "2025-01-03" },
     ];
     return {
         supabaseMock: {
@@ -38,7 +38,7 @@ const { getAllIngredientsMock, upsertUserDataMock, upsertUserIngredientsMock, su
                 signOut: vi.fn(),
             }
         },
-        getAllIngredientsMock: vi.fn().mockResolvedValue(mockIngredients),
+        loadRankedIngredientsMock: vi.fn().mockResolvedValue(mockRankedIngredients),
         upsertUserDataMock: vi.fn(),
         upsertUserIngredientsMock: vi.fn(),
         fetchUserMock: vi.fn()
@@ -46,8 +46,8 @@ const { getAllIngredientsMock, upsertUserDataMock, upsertUserIngredientsMock, su
     };
 });
 // サービスやsupabaseをモックに置き換え
-vi.mock("../service/getAllIngredients", () => ({
-    getAllIngredients: getAllIngredientsMock
+vi.mock("../service/loadRankedIngredients", () => ({
+    loadRankedIngredients: loadRankedIngredientsMock
 }));
 vi.mock("../service/upsertUserData", () => ({
     upsertUserData: upsertUserDataMock
@@ -149,14 +149,23 @@ describe("新規登録画面", async () => {
         expect(glutenNo).not.toBeChecked();
     });
 
-    test("家にある調味料が表示される", async () => {
+    test("家にある調味料がランキング順で表示される", async () => {
         render(
             <MemoryRouter>
                 <Register />
             </MemoryRouter>
         );
-        expect(await screen.findByText("塩")).toBeInTheDocument();
-        expect(await screen.findByText("砂糖")).toBeInTheDocument();
+        // ランキングTOPの調味料には (TOP◯) が表示される想定
+        const saltLabel = await screen.findByText(/塩/);
+        const sugarLabel = await screen.findByText(/砂糖/);
+
+
+        expect(saltLabel).toHaveTextContent("塩");
+        expect(saltLabel).toHaveTextContent("TOP1");
+        expect(sugarLabel).toHaveTextContent("砂糖");
+        expect(sugarLabel).toHaveTextContent("TOP2");
+
+        // 醤油はランキング外なので TOP 表示なし
         expect(await screen.findByText("醤油")).toBeInTheDocument();
     });
 
@@ -168,7 +177,7 @@ describe("新規登録画面", async () => {
         );
 
         // 「塩」のチェックボックスを取得
-        const saltCheckBox = await screen.findByRole("checkbox", { name: "塩" });
+        const saltCheckBox = await screen.findByRole("checkbox", { name: /塩/ });
 
         // 初期状態: チェックされていない
         expect(saltCheckBox).not.toBeChecked();
@@ -232,7 +241,7 @@ describe("新規登録画面", async () => {
         await user.type(screen.getByLabelText("アレルギー（カンマ区切りで入力）"), "卵");
 
         // 調味料「塩」を選択
-        const saltCheckBox = await screen.findByRole("checkbox", { name: "塩" });
+        const saltCheckBox = await screen.findByRole("checkbox", { name: /塩/ });
         await user.click(saltCheckBox);
 
         // 登録ボタン押下

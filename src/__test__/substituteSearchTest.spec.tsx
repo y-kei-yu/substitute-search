@@ -25,12 +25,12 @@ vi.mock("react-router-dom", async () => {
 // テストで使うユーザー操作イベントを定義
 const user = userEvent.setup();
 
-const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUserSearchHistoryMock, insertUserSearchHistoryMock, supabaseMock, generateContentMock } = vi.hoisted(() => {
+const { loadRankedIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUserSearchHistoryMock, insertUserSearchHistoryMock, supabaseMock, generateContentMock } = vi.hoisted(() => {
     // テストデータ
-    const mockIngredients = [
-        { id: 1, name: "塩" },
-        { id: 2, name: "砂糖" },
-        { id: 3, name: "醤油" },
+    const mockRankedIngredients = [
+        { id: 1, name: "塩", created_at: "2025-01-01", rank: 1 },
+        { id: 2, name: "砂糖", created_at: "2025-01-02", rank: 2 },
+        { id: 3, name: "醤油", created_at: "2025-01-03" },
     ];
     return {
         supabaseMock: {
@@ -42,7 +42,7 @@ const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUse
                 eq: vi.fn().mockReturnThis(),
             })),
         },
-        getAllIngredientsMock: vi.fn().mockResolvedValue(mockIngredients),
+        loadRankedIngredientsMock: vi.fn().mockResolvedValue(mockRankedIngredients),
         fetchUserMock: vi.fn(),
         fetchUserIngredientsMock: vi.fn(),
         fetchUserSearchHistoryMock: vi.fn().mockResolvedValue([]),
@@ -53,8 +53,8 @@ const { getAllIngredientsMock, fetchUserMock, fetchUserIngredientsMock, fetchUse
 
     }
 });
-vi.mock("../service/getAllIngredients", () => ({
-    getAllIngredients: getAllIngredientsMock
+vi.mock("../service/loadRankedIngredients", () => ({
+    loadRankedIngredients: loadRankedIngredientsMock
 }));
 vi.mock("../service/fetchUser", () => ({
     fetchUser: fetchUserMock
@@ -107,14 +107,23 @@ describe("代替品検索画面", async () => {
         expect(screen.getByLabelText("代替したいもの")).toHaveValue("麺つゆ");
     });
 
-    test("家にある調味料が表示される", async () => {
+    test("家にある調味料がランキング順で表示される", async () => {
         render(
             <MemoryRouter>
                 <SubstituteSearch />
             </MemoryRouter>
         );
-        expect(await screen.findByText("塩")).toBeInTheDocument();
-        expect(await screen.findByText("砂糖")).toBeInTheDocument();
+        // ランキングTOPの調味料には (TOP◯) が表示される想定
+        const saltLabel = await screen.findByText(/塩/);
+        const sugarLabel = await screen.findByText(/砂糖/);
+
+
+        expect(saltLabel).toHaveTextContent("塩");
+        expect(saltLabel).toHaveTextContent("TOP1");
+        expect(sugarLabel).toHaveTextContent("砂糖");
+        expect(sugarLabel).toHaveTextContent("TOP2");
+
+        // 醤油はランキング外なので TOP 表示なし
         expect(await screen.findByText("醤油")).toBeInTheDocument();
     });
 
@@ -152,8 +161,8 @@ describe("代替品検索画面", async () => {
             .toHaveValue("卵");
 
         // 「塩」と「醤油」がチェックされている
-        expect(await screen.findByRole("checkbox", { name: "塩" })).toBeChecked();
-        expect(await screen.findByRole("checkbox", { name: "醤油" })).toBeChecked();
+        expect(await screen.findByRole("checkbox", { name: /塩/ })).toBeChecked();
+        expect(await screen.findByRole("checkbox", { name: /醤油/ })).toBeChecked();
     });
 
     test("代替したいものがないとエラーメッセージが表示される", async () => {

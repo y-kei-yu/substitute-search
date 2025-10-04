@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Ingredients } from "../domain/Ingredients";
-import { getAllIngredients } from "../service/getAllIngredients";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -18,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IngredientCheckBox } from "@/components/IngredientCheckBox";
 import { SubmitButton } from "@/components/layouts/SubmitButton";
 import { BackButton } from "@/components/layouts/BackButton";
+import { loadRankedIngredients } from "@/service/loadRankedIngredients";
 
 
 export const Register = () => {
@@ -45,11 +45,11 @@ export const Register = () => {
             setSelectedIngredients(selectedIngredients.filter(selectedId => selectedId !== id));
         }
     }
-    //材料テーブルから全データを取得する
-    const allIngredients = async () => {
-        const ingredientData = await getAllIngredients();
-        setIngredientData(ingredientData);
-    };
+    // 材料テーブルをランキング順で取得する
+    const loadRankedIngredientsData = async () => {
+        const data = await loadRankedIngredients();
+        setIngredientData(data);
+    }
 
     //登録ボタンクリック時の処理
     const onSubmit: SubmitHandler<UserForm> = async (data) => {
@@ -77,7 +77,7 @@ export const Register = () => {
 
     //
     useEffect(() => {
-        allIngredients();
+        loadRankedIngredientsData();
         fetchAuthUser();
     }, []);
 
