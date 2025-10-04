@@ -15,11 +15,6 @@ export const Header = () => {
         navigate("/")
     }
 
-    // タイトルをクリックした時
-    const handleTitle = async () => {
-        window.location.reload();
-    }
-
     //ニックネームを取得
     const fetchUserNickName = async () => {
         const { data } = await supabase.auth.getUser()
@@ -31,6 +26,23 @@ export const Header = () => {
     }
     useEffect(() => {
         fetchUserNickName();
+
+        // ログイン／ログアウトの変化を監視
+        const { data: listener } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
+                if (event === "SIGNED_IN" && session?.user) {
+                    const userProfile = await fetchUser(session.user.id);
+                    if (userProfile) {
+                        setNickname(userProfile.name);
+                    }
+                } else if (event === "SIGNED_OUT") {
+                    setNickname(null);
+                }
+            }
+        )
+        return () => {
+            listener.subscription.unsubscribe();
+        }
     }, [])
 
     return (
@@ -39,8 +51,7 @@ export const Header = () => {
                 {/* 左側: ロゴ or アイコン */}
                 <div className="flex items-center gap-2">
                     {/* PCのみアプリ名表示 */}
-                    <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-wide text-white cursor-pointer hover:text-green-200 transition-colors duration-200"
-                        onClick={handleTitle}>
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-wide text-white">
                         代替品検索アプリ
                     </h1>
                 </div>
