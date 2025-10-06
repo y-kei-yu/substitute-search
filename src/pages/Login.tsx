@@ -70,11 +70,11 @@ export const Login = () => {
                 <div className="flex flex-col items-center text-center space-y-6">
                     <h1 className="text-5xl md:text-6xl font-extrabold text-green-700" data-testid="testLoginTitle">代替品検索アプリ</h1>
                     <h2 className="text-2xl font-semibold text-slate-600">
-                        食材がなくても、代わりが見つかる
+                        家にある調味料でなんとかなる！
                     </h2>
                     <div className="mt-2" />
                     <p className="text-base md:text-lg text-slate-500 leading-relaxed">
-                        卵が切れた？バターがない？このアプリならAIが代わりの食材を提案します。
+                        登録した調味料から、AIが「使える代替調味料」を提案します。
                     </p>
                     <div className="mt-6" />
                     {!authUser && (
