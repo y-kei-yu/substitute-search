@@ -116,21 +116,30 @@ export const SubstituteSearch = () => {
     const handleSearch: SubmitHandler<SearchForm> = async (data) => {
         setIsLoading(true);
         const prompt = `
-            「${data.targetSubstitute}」が無い場合の代替食材と分量を提案してください。
-            - 家庭にある調味料を優先する
-            - 必ず「代替食材」「分量」の2行で答える
+            あなたは料理の専門家です。
+            次の条件をもとに、「${data.targetSubstitute}」の代わりになる調味料とその分量を提案してください。
 
-            条件:
+            【目的】
+            - 家にある調味料をできるだけ活用して代替案を出す
+            - どうしても足りない場合のみ一般的な調味料を提案する
+
+            【利用できる調味料】
+            ${ingredientData
+                .filter((i) => selectedIngredients.includes(i.id))
+                .map((i) => i.name)
+                .join(", ") || "（特になし）"}
+
+            【制約条件】
             ${data.is_vegan ? "- 動物性の材料は使わない" : ""}
             ${data.is_gluten_free ? "- 小麦を含む材料は使わない" : ""}
             ${data.allergies ? `- 以下のアレルゲンは使わない: ${data.allergies}` : ""}
-            - 家にある食材: ${ingredientData
-                .filter((i) => selectedIngredients.includes(i.id))
-                .map((i) => i.name)
-                .join(", ") || "指定なし"}
-            出力形式:
+
+            【出力形式】
+            以下の2行のみで回答してください。説明文や理由は不要です。
             代替食材: （材料名をカンマ区切りで書く）
             分量: （「材料: 量」の形式でカンマ区切りで書く）
+
+            ※ 家にある調味料が十分な場合は、それだけで代替案を作ってください。
         `;
         try {
             const result = await callAI(prompt);
